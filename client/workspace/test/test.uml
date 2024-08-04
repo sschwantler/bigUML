@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ASCII"?>
+<uml:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_Ixd8AN8LEe6XScRLwR9PWg">
+  <packagedElement xsi:type="uml:Class" xmi:id="_InP2wAiREe-PucyD8uwGDw" name="Book" isAbstract="true">
+    <ownedAttribute xmi:id="_QazSpAiREe-PucyD8uwGDw" name="" type="_Jud9gAiREe-PucyD8uwGDw" association="_QazSoAiREe-PucyD8uwGDw">
+      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_QazSpQiREe-PucyD8uwGDw" value="1"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_QazSpgiREe-PucyD8uwGDw" value="1"/>
+    </ownedAttribute>
+    <ownedAttribute xmi:id="_knqNgAiREe-PucyD8uwGDw" name="Title">
+      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_knqNgQiREe-PucyD8uwGDw" value="1"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_knqNggiREe-PucyD8uwGDw" value="1"/>
+    </ownedAttribute>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Class" xmi:id="_Jud9gAiREe-PucyD8uwGDw" name="Page" visibility="public">
+    <ownedAttribute xmi:id="_QazSoQiREe-PucyD8uwGDw" name="" type="_InP2wAiREe-PucyD8uwGDw" aggregation="shared" association="_QazSoAiREe-PucyD8uwGDw">
+      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_QazSogiREe-PucyD8uwGDw" value="1"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_QazSowiREe-PucyD8uwGDw" value="1"/>
+    </ownedAttribute>
+    <ownedAttribute xmi:id="_x0mnABH0Ee-rE5G-EDyVkA" name="WordCount">
+      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_x0mnARH0Ee-rE5G-EDyVkA" value="1"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_x0mnAhH0Ee-rE5G-EDyVkA" value="1"/>
+    </ownedAttribute>
+    <ownedOperation xmi:id="_q_lP8RH0Ee-rE5G-EDyVkA" name="create">
+      <ownedParameter xmi:id="_wF3X8FJYEe-MjaMoDIMTnQ" name="fontSize"/>
+    </ownedOperation>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Association" xmi:id="_QazSoAiREe-PucyD8uwGDw" memberEnd="_QazSoQiREe-PucyD8uwGDw _QazSpAiREe-PucyD8uwGDw"/>
+  <packagedElement xsi:type="uml:Class" xmi:id="_nDuYUVJ0Ee-THa0YLVtvUQ" name="Class"/>
+  <packagedElement xsi:type="uml:Class" xmi:id="_ZGmrQVJ2Ee-EtJ3dveoekw" name="car"/>
+</uml:Model>
