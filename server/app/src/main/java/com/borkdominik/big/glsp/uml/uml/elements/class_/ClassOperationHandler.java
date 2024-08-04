@@ -44,8 +44,12 @@ public class ClassOperationHandler extends BGEMFNodeOperationHandler<Class, Pack
             if (isAbstract) {
                return x.createOwnedClass("Abstract Class", true);
             }
+            var name = "Class";
+            if (operation.getArgs() != null && operation.getArgs().containsKey("name")) {
+               name = operation.getArgs().get("name");
+            }
 
-            return x.createOwnedClass(operation.getArgs().get("name"), false);
+            return x.createOwnedClass(name, false);
          })
          .build();
 
