@@ -8,8 +8,8 @@
   </elements>
   <elements xsi:type="notation:Shape" xmi:id="_Jud9gQiREe-PucyD8uwGDw">
     <semanticElement xmi:id="_Jud9ggiREe-PucyD8uwGDw" elementId="_Jud9gAiREe-PucyD8uwGDw"/>
-    <position xmi:id="_2NxdcFJwEe-MjaMoDIMTnQ" x="846.0" y="280.0"/>
-    <size xmi:id="_2NxdcVJwEe-MjaMoDIMTnQ" width="194.01041984558105" height="91.85714530944824"/>
+    <position xmi:id="_kLK2YFyyEe-myNpgxKX7HQ" x="846.0" y="280.0"/>
+    <size xmi:id="_kLK2YVyyEe-myNpgxKX7HQ" width="194.01041984558105" height="91.85714530944824"/>
   </elements>
   <elements xsi:type="notation:Edge" xmi:id="_QazSpwiREe-PucyD8uwGDw">
     <semanticElement xmi:id="_QazSqAiREe-PucyD8uwGDw" elementId="_QazSoAiREe-PucyD8uwGDw"/>
@@ -38,10 +38,5 @@
     <semanticElement xmi:id="_wF3_AVJYEe-MjaMoDIMTnQ" elementId="_wF3X8FJYEe-MjaMoDIMTnQ"/>
     <position xmi:id="_wF3_AlJYEe-MjaMoDIMTnQ"/>
     <size xmi:id="_wF3_A1JYEe-MjaMoDIMTnQ" width="60.0" height="45.0"/>
-  </elements>
-  <elements xsi:type="notation:Shape" xmi:id="_ZGnSUFJ2Ee-EtJ3dveoekw">
-    <semanticElement xmi:id="_ZGnSUVJ2Ee-EtJ3dveoekw" elementId="_ZGmrQVJ2Ee-EtJ3dveoekw"/>
-    <position xmi:id="_ZGnSUlJ2Ee-EtJ3dveoekw" x="1276.0" y="200.0"/>
-    <size xmi:id="_ZGnSU1J2Ee-EtJ3dveoekw" width="60.0" height="45.0"/>
   </elements>
 </unotation:UMLDiagram>

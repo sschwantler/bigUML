@@ -18,7 +18,6 @@ import { Action, CreateNodeOperation } from '@eclipse-glsp/protocol';
 import { TextField as VSCodeTextField } from '@vscode/webview-ui-toolkit';
 import { PropertyValues, TemplateResult, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { groupBy } from 'lodash';
 import { BigElement } from '../base/component';
 import '../global';
 import { TextInputDeleteEventDetail, TextInputNameChangeDetail, TextInputOrderDetail } from './reference/text-input-palette-reference.component';
@@ -37,13 +36,13 @@ export class TextInputPalette extends BigElement {
     @property({ type: Object })
     properties?: ElementProperties;
 
-    @state() inputText = 'yoyoyo';
-
-    @state()
-    protected searchText?: string;
+    @state() inputText = '...';
 
     @state()
     protected navigationIds: { [key: string]: { from: string; to: string }[] } = {};
+
+    private mediaRecorder: MediaRecorder | null = null;
+    private audioChunks: BlobPart[] = [];
 
     protected override render(): TemplateResult<1> {
         return html`<div>${this.headerTemplate()} ${this.bodyTemplate()}</div>`;
@@ -61,81 +60,74 @@ export class TextInputPalette extends BigElement {
 
     protected headerTemplate(): TemplateResult<1> {
         return html`<header>Text Input Field</header>`;
-        // return html`<header>
-        //     ${when(
-        //         this.clientId && this.navigationIds[this.clientId]?.length > 0,
-        //         () => html`
-        //             <vscode-button id="navigate-back" appearance="icon" @click="${this.onNavigateBack}"
-        //                 ><span class="codicon codicon-chevron-left"></span
-        //             ></vscode-button>
-        //         `,
-        //         () => nothing
-        //     )}
-        //     ${this.properties === undefined ? nothing : html`<h3 class="title">${this.properties?.label}</h3>`}
-        // </header>`;
     }
 
     protected bodyTemplate(): TemplateResult<1> {
         return this.textFieldWithButtonTemplate();
+    }
 
-        // if (this.properties === undefined) {
-        //     return html`<div class="no-data-message">The active diagram does not provide property information.</div>`;
-        // }
+    protected async onRecordAudio(): Promise<void> {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.error('Audio recording not supported in this environment');
+            return;
+        }
 
-        // const items = this.properties.items;
-        // const filteredItems = items.filter(item => {
-        //     const label: string = (item as any)['label'];
+        try {
+            // fixme: Permissions policy violation: microphone is not allowed in this document.
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.mediaRecorder = new MediaRecorder(stream);
 
-        //     if (label !== undefined && this.searchText !== undefined) {
-        //         return label.toLowerCase().includes(this.searchText.toLocaleLowerCase());
-        //     }
+            this.mediaRecorder.ondataavailable = (event) => {
+                this.audioChunks.push(event.data);
+            };
 
-        //     return true;
-        // });
-        // const { references: referenceItems, other: gridItems } = extractReferences(filteredItems);
+            this.mediaRecorder.start();
+            console.info("Recording started...");
 
-        // const gridTemplates = gridItems.map(item => {
-        //     if (ElementTextProperty.is(item)) {
-        //         return this.textFieldTemplate(item);
-        //     } else if (ElementBoolProperty.is(item)) {
-        //         return this.checkboxTemplate(item);
-        //     } else if (ElementChoiceProperty.is(item)) {
-        //         return this.dropdownTemplate(item);
-        //     }
+            // Automatically stop recording after 5 seconds
+            setTimeout(() => {
+                this.stopRecording();
+            }, 5000);
 
-        //     return html`${nothing}`;
-        // });
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+        }
+    }
 
-        // const referenceTemplates = referenceItems.map(item => {
-        //     if (ElementReferenceProperty.is(item)) {
-        //         return this.referenceTemplate(item);
-        //     }
+    protected async stopRecording(): Promise<void> {
+        if (this.mediaRecorder) {
+            this.mediaRecorder.stop();
+            this.mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+                this.audioChunks = [];  // Clear the chunks array for the next recording
 
-        //     return html`${nothing}`;
-        // });
+                console.log("Recording stopped.");
+                await this.transcribeAudio(audioBlob);
+            };
+        }
+    }
 
-        // return html`<div class="body">
-        //     <vscode-text-field
-        //         id="search"
-        //         placeholder="Search"
-        //         .value="${this.searchText}"
-        //         @input="${(event: any) => (this.searchText = event.target?.value)}"
-        //     >
-        //         <span slot="start" class="codicon codicon-search"></span>
-        //     </vscode-text-field>
-        //     <vscode-divider></vscode-divider>
-        //     ${when(
-        //         gridTemplates.length > 0,
-        //         () => html`<div class="grid">${gridTemplates}</div>`,
-        //         () => nothing
-        //     )}
-        //     ${when(
-        //         gridTemplates.length > 0 && referenceTemplates.length > 0,
-        //         () => html`<vscode-divider></vscode-divider>`,
-        //         () => nothing
-        //     )}
-        //     ${referenceTemplates}
-        // </div>`;
+    protected async transcribeAudio(audioBlob: Blob): Promise<void> {
+        const formData = new FormData();
+        formData.append("file", new File([audioBlob], "recording.wav"));
+
+        try {
+            const response = await fetch('http://localhost:8000/transcribe/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(`Transcription: ${data.transcription}`);
+            this.inputText = data.transcription;
+
+        } catch (error) {
+            console.error("Error transcribing audio:", error);
+        }
     }
 
     protected async onStartIntent(): Promise<void> {
@@ -152,7 +144,6 @@ export class TextInputPalette extends BigElement {
     }
 
     protected async handleIntent(intent: string) {
-
         enum Intents {
             CREATE_CLASS = "CreateClass",
             CREATE_RELATION = "CreateRelation",
@@ -200,7 +191,8 @@ export class TextInputPalette extends BigElement {
         return html`
             <div class="grid-value grid-flex">
                 <vscode-text-field .value="${this.inputText}" @input="${(event: any) => (this.inputText = event.target?.value)}"></vscode-text-field>
-                <vscode-button appearance="primary" @click="${this.onStartIntent}"> Do Smth </vscode-button>
+                <vscode-button appearance="primary" @click="${this.onStartIntent}"> Send </vscode-button>
+                <vscode-button appearance="primary" @click="${this.onRecordAudio}"> Record </vscode-button>
             </div>
         `
     }
@@ -216,7 +208,6 @@ export class TextInputPalette extends BigElement {
                 <vscode-text-field .value="${item.text}" @change="${onChange}" ?disabled="${item.disabled}"></vscode-text-field>
             </div>`;
     }
-
 
     protected onPropertyChange(item: ElementProperty, value: string): void {
         const { elementId, propertyId } = item;
@@ -245,27 +236,6 @@ export class TextInputPalette extends BigElement {
             })
         );
     }
-
-    // protected onPropertyNavigate(event: CustomEvent<ElementReferenceProperty.Reference>): void {
-    //     const { elementId } = event.detail;
-    //     if (this.properties && this.clientId) {
-    //         this.navigationIds[this.clientId] = [
-    //             ...(this.navigationIds[this.clientId] ?? []),
-    //             {
-    //                 from: this.properties.elementId,
-    //                 to: elementId
-    //             }
-    //         ];
-    //     }
-
-    //     this.dispatchEvent(
-    //         new CustomEvent<Action>('dispatch-action', {
-    //             detail: RefreshPropertyPaletteAction.create({
-    //                 elementId
-    //             })
-    //         })
-    //     );
-    // }
 
     protected onPropertyNameChange(event: CustomEvent<TextInputNameChangeDetail>): void {
         const { elementId, name } = event.detail;
@@ -296,13 +266,4 @@ export class TextInputPalette extends BigElement {
             })
         );
     }
-}
-
-export function extractReferences(items: ElementProperty[]): { references: ElementReferenceProperty[]; other: ElementProperty[] } {
-    const group = groupBy(items, item => item.type === 'REFERENCE');
-
-    return {
-        references: (group['true'] as ElementReferenceProperty[]) ?? [],
-        other: group['false'] ?? []
-    };
 }

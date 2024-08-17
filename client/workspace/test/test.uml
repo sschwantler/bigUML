@@ -24,6 +24,4 @@
     </ownedOperation>
   </packagedElement>
   <packagedElement xsi:type="uml:Association" xmi:id="_QazSoAiREe-PucyD8uwGDw" memberEnd="_QazSoQiREe-PucyD8uwGDw _QazSpAiREe-PucyD8uwGDw"/>
-  <packagedElement xsi:type="uml:Class" xmi:id="_nDuYUVJ0Ee-THa0YLVtvUQ" name="Class"/>
-  <packagedElement xsi:type="uml:Class" xmi:id="_ZGmrQVJ2Ee-EtJ3dveoekw" name="car"/>
 </uml:Model>
