@@ -14,7 +14,7 @@ import {
     ElementTextProperty,
     UpdateElementPropertyAction
 } from '@borkdominik-biguml/uml-protocol';
-import { Action, CreateNodeOperation } from '@eclipse-glsp/protocol';
+import { Action, CreateNodeOperation, CreateEdgeOperation, DeleteElementOperation } from '@eclipse-glsp/protocol';
 import { TextField as VSCodeTextField } from '@vscode/webview-ui-toolkit';
 import { PropertyValues, TemplateResult, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
@@ -131,6 +131,10 @@ export class TextInputPalette extends BigElement {
     }
 
     protected async onStartIntent(): Promise<void> {
+        console.log("onStartIntent");
+        console.log(this.properties);
+        console.log(this.navigationIds);
+
         const response = await fetch(`http://127.0.0.1:8000/intent/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
@@ -146,45 +150,167 @@ export class TextInputPalette extends BigElement {
     protected async handleIntent(intent: string) {
         enum Intents {
             CREATE_CLASS = "CreateClass",
-            CREATE_RELATION = "CreateRelation",
-          }
-        
+            ADD_ATTRIBUTE = "AddAttribute",
+            ADD_METHOD = "AddMethod",
+            CHANGE_NAME_INTENT = "ChangeName",
+            CHANGE_VISIBILITY_INTENT = "ChangeVisibility",
+            CHANGE_DATATYPE_INTENT = "ChangeDatatype",
+            CREATE_RELATION = "AddRelation",
+            DELETE_INTENT = "Delete"
+        }
+
+        console.log(intent);
+
         switch(intent) {
             case Intents.CREATE_CLASS: {
-                const response = await fetch(`http://127.0.0.1:8000/create-class/?user_query=${this.inputText}`, {
-                    headers: {
-                        accept: 'application/json'
-                    }
-                })
-                if (!response.ok) {
-                    console.error(response.text);
+                this.createClass();
+                break;
+            }
+            case Intents.ADD_ATTRIBUTE: {
+                if (this.properties?.elementId == null) {
+                    console.error("Nothing selected");
+                    return;
                 }
-                const json = await response.json();
-                this.createClass(json);
+                this.addAttribute();
+                break;
+            }
+            case Intents.ADD_METHOD: {
+                if (this.properties?.elementId == null) {
+                    console.error("Nothing selected");
+                    return;
+                }
+                this.addMethod();
+                break;
+            }
+            case Intents.CREATE_RELATION: {
+                this.createRelation();
+                break;
+            }
+            case Intents.DELETE_INTENT: {
+                if (this.properties?.elementId == null) {
+                    console.error("Nothing selected");
+                    return;
+                }
+                this.deleteElement();
                 break;
             }
             default: {
                 console.log("Buhu ;(");
             }
+            // todo set focus on created relation
         }
     }
 
-    protected createClass(info: any) {
-            this.dispatchEvent(
-                new CustomEvent('dispatch-action', {
-                    detail: CreateNodeOperation.create(`CLASS__Class`, 
-                    {
-                        containerId: "_Ixd8AN8LEe6XScRLwR9PWg",
-                        location: {
-                            x: 1276,
-                            y: 200
-                        },
-                        args: {
-                            name: info.class_name
-                        }
-                    })
+    protected async createClass() {
+        const response = await fetch(`http://127.0.0.1:8000/create-class/?user_query=${this.inputText}`, {
+            headers: {
+                accept: 'application/json'
+            },
+            method: "POST"
+        });
+        if (!response.ok) {
+            console.error(response.text);
+        }
+        const json = await response.json();
+        this.dispatchEvent(
+            new CustomEvent('dispatch-action', {
+                detail: CreateNodeOperation.create(json.is_abstract ? `CLASS__AbstractClass` : `CLASS__Class`, 
+                {
+                    containerId: "_Ixd8AN8LEe6XScRLwR9PWg",
+                    location: {
+                        x: 0,
+                        y: 0
+                    },
+                    args: {
+                        name: json.class_name,
+                        isAbstract: json.is_abstract
+                    }
                 })
-            );
+            })
+        );
+    }
+
+    // abstract parent for addAttribute and addMethod
+    protected async addValue() {
+        const response = await fetch(`http://127.0.0.1:8000/add-value/?user_query=${this.inputText}`, {
+            headers: {
+                accept: 'application/json'
+            },
+            method: "POST"
+        });
+        if (!response.ok) {
+            console.error(response.text);
+        }
+        return await response.json();
+    }
+
+    protected async addAttribute() {
+        const json = await this.addValue();
+        this.dispatchEvent(
+            new CustomEvent('dispatch-action', {
+                detail: CreateNodeOperation.create(`CLASS__Property`, 
+                {
+                    containerId: this.properties?.elementId,
+                    args: {
+                        name: json.value_name,
+                        datatype: json.value_datatype,
+                        visibility: json.value_visibility
+                    }
+                })
+            })
+        );
+    }
+
+    protected async addMethod() {
+        const json = await this.addValue();
+        // no return type
+        this.dispatchEvent(
+            new CustomEvent('dispatch-action', {
+                detail: CreateNodeOperation.create(`CLASS__Operation`, 
+                {
+                    containerId: this.properties?.elementId,
+                    args: {
+                        name: json.value_name,
+                        visibility: json.value_visibility
+                    }
+                })
+            })
+        );
+    }
+
+    protected async createRelation() {
+        const response = await fetch(`http://127.0.0.1:8000/add-relation/?user_query=${this.inputText}`, {
+            headers: {
+                accept: 'application/json'
+            },
+            method: "POST",
+            // todo requires current model .uml + .unotation
+        });
+        if (!response.ok) {
+            console.error(response.text);
+        }
+        const json = await response.json();
+        this.dispatchEvent(
+            new CustomEvent('dispatch-action', {
+                detail: CreateEdgeOperation.create( 
+                {
+                    elementTypeId: "CLASS__" + json.realation_type,
+                    sourceElementId: json.class_from_id,
+                    targetElementId: json.class_to_id,
+                    args: {}
+                })
+            })
+        );
+    }
+
+    protected async deleteElement() {
+        const elementIdString = this.properties?.elementId;
+        const elementIdList: string[] = elementIdString ? [elementIdString] : [];
+        this.dispatchEvent(
+            new CustomEvent('dispatch-action', {
+                detail: DeleteElementOperation.create(elementIdList, {})
+            })
+        );
     }
 
     protected textFieldWithButtonTemplate(): TemplateResult<1> {

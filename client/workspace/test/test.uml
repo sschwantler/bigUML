@@ -5,9 +5,9 @@
       <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_QazSpQiREe-PucyD8uwGDw" value="1"/>
       <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_QazSpgiREe-PucyD8uwGDw" value="1"/>
     </ownedAttribute>
-    <ownedAttribute xmi:id="_knqNgAiREe-PucyD8uwGDw" name="Title">
-      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_knqNgQiREe-PucyD8uwGDw" value="1"/>
-      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_knqNggiREe-PucyD8uwGDw" value="1"/>
+    <ownedAttribute xmi:id="_MYb8IWeWEe-I19UWYsPx4Q" name="title" visibility="public">
+      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_MYfmgGeWEe-I19UWYsPx4Q" value="1"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_MYfmgWeWEe-I19UWYsPx4Q" value="1"/>
     </ownedAttribute>
   </packagedElement>
   <packagedElement xsi:type="uml:Class" xmi:id="_Jud9gAiREe-PucyD8uwGDw" name="Page" visibility="public">
@@ -19,9 +19,7 @@
       <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_x0mnARH0Ee-rE5G-EDyVkA" value="1"/>
       <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_x0mnAhH0Ee-rE5G-EDyVkA" value="1"/>
     </ownedAttribute>
-    <ownedOperation xmi:id="_q_lP8RH0Ee-rE5G-EDyVkA" name="create">
-      <ownedParameter xmi:id="_wF3X8FJYEe-MjaMoDIMTnQ" name="fontSize"/>
-    </ownedOperation>
+    <ownedOperation xmi:id="_q_lP8RH0Ee-rE5G-EDyVkA" name="create"/>
   </packagedElement>
   <packagedElement xsi:type="uml:Association" xmi:id="_QazSoAiREe-PucyD8uwGDw" memberEnd="_QazSoQiREe-PucyD8uwGDw _QazSpAiREe-PucyD8uwGDw"/>
 </uml:Model>

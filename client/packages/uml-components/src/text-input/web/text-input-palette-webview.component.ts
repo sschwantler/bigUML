@@ -44,6 +44,11 @@ export class TextInputPaletteWebview extends BigElement {
 
         messenger.onNotification<ActionMessage>(ActionMessageNotification, message => {
             const { clientId, action } = message;
+            console.log("onNotification");
+            console.log(message);
+            console.log(clientId);
+            console.log(action);
+
             if (SetPropertyPaletteAction.is(action)) {
                 this.clientId = clientId;
                 this.elementProperties = action.palette;
@@ -66,10 +71,18 @@ export class TextInputPaletteWebview extends BigElement {
     }
 
     protected onDispatchAction(event: CustomEvent<Action>): void {
+
+        console.log("onDispatchAction");
+        console.log(event.detail);
+
         this.sendNotification(event.detail);
     }
 
     protected sendNotification(action: Action): void {
+
+        console.log("sendNotification");
+        console.log(action);
+
         messenger.sendNotification(ActionMessageNotification, HOST_EXTENSION, {
             clientId: this.clientId,
             action
