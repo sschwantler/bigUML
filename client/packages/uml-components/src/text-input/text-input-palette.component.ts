@@ -182,6 +182,14 @@ export class TextInputPalette extends BigElement {
                 this.addMethod();
                 break;
             }
+            case Intents.CHANGE_NAME_INTENT: {
+                if (this.properties?.elementId == null) {
+                    console.error("Nothing selected");
+                    return;
+                }
+                // TODO implement
+                break;
+            }
             case Intents.CREATE_RELATION: {
                 this.createRelation();
                 break;
@@ -246,6 +254,17 @@ export class TextInputPalette extends BigElement {
 
     protected async addAttribute() {
         const json = await this.addValue();
+        // todo destinguish between method param and class param
+        
+        /*
+        if method param:
+            this.dispatchEvent(
+                new CustomEvent<Action>('dispatch-action', {
+                    detail: event.detail.action
+                })
+            );
+        */
+
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: CreateNodeOperation.create(`CLASS__Property`, 

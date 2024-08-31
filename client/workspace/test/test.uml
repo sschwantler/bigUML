@@ -19,7 +19,16 @@
       <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_x0mnARH0Ee-rE5G-EDyVkA" value="1"/>
       <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_x0mnAhH0Ee-rE5G-EDyVkA" value="1"/>
     </ownedAttribute>
-    <ownedOperation xmi:id="_q_lP8RH0Ee-rE5G-EDyVkA" name="create"/>
+    <ownedOperation xmi:id="_q_lP8RH0Ee-rE5G-EDyVkA" name="create">
+      <ownedParameter xmi:id="_98AQUGesEe-xapx0e2HHbg" name="Parameter"/>
+    </ownedOperation>
   </packagedElement>
   <packagedElement xsi:type="uml:Association" xmi:id="_QazSoAiREe-PucyD8uwGDw" memberEnd="_QazSoQiREe-PucyD8uwGDw _QazSpAiREe-PucyD8uwGDw"/>
+  <packagedElement xsi:type="uml:Class" xmi:id="_y7gVIWedEe-RN6juRAGSiw" name="tiger">
+    <ownedAttribute xmi:id="_pFQzUGeeEe-RN6juRAGSiw" name="color" visibility="private">
+      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_pFQzUWeeEe-RN6juRAGSiw" value="1"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_pFQzUmeeEe-RN6juRAGSiw" value="1"/>
+    </ownedAttribute>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Class" xmi:id="_0Zy4EGedEe-RN6juRAGSiw" name="Dog"/>
 </uml:Model>
