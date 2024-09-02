@@ -59,7 +59,7 @@ export class TextInputPalette extends BigElement {
     }
 
     protected headerTemplate(): TemplateResult<1> {
-        return html`<header>Text Input Field</header>`;
+        return html`<header>Query</header>`;
     }
 
     protected bodyTemplate(): TemplateResult<1> {
@@ -333,11 +333,12 @@ export class TextInputPalette extends BigElement {
     }
 
     protected textFieldWithButtonTemplate(): TemplateResult<1> {
+        // TODO comment in record button
         return html`
             <div class="grid-value grid-flex">
                 <vscode-text-field .value="${this.inputText}" @input="${(event: any) => (this.inputText = event.target?.value)}"></vscode-text-field>
                 <vscode-button appearance="primary" @click="${this.onStartIntent}"> Send </vscode-button>
-                <vscode-button appearance="primary" @click="${this.onRecordAudio}"> Record </vscode-button>
+                <!--<vscode-button appearance="primary" @click="${this.onRecordAudio}"> Record </vscode-button>-->
             </div>
         `
     }

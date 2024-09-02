@@ -8,8 +8,8 @@
   </elements>
   <elements xsi:type="notation:Shape" xmi:id="_Jud9gQiREe-PucyD8uwGDw">
     <semanticElement xmi:id="_Jud9ggiREe-PucyD8uwGDw" elementId="_Jud9gAiREe-PucyD8uwGDw"/>
-    <position xmi:id="_kLK2YFyyEe-myNpgxKX7HQ" x="846.0" y="280.0"/>
-    <size xmi:id="_kLK2YVyyEe-myNpgxKX7HQ" width="194.01041984558105" height="91.85714530944824"/>
+    <position xmi:id="_BwNZQGlDEe-vWImgiMBeVg" x="423.0" y="283.0"/>
+    <size xmi:id="_BwNZQWlDEe-vWImgiMBeVg" width="215.77995109558105" height="91.85714530944824"/>
   </elements>
   <elements xsi:type="notation:Edge" xmi:id="_QazSpwiREe-PucyD8uwGDw">
     <semanticElement xmi:id="_QazSqAiREe-PucyD8uwGDw" elementId="_QazSoAiREe-PucyD8uwGDw"/>
@@ -33,21 +33,6 @@
     <semanticElement xmi:id="_UhvlkWeWEe-I19UWYsPx4Q" elementId="_MYb8IWeWEe-I19UWYsPx4Q"/>
     <position xmi:id="_UhvlkmeWEe-I19UWYsPx4Q"/>
     <size xmi:id="_Uhvlk2eWEe-I19UWYsPx4Q" width="60.0" height="45.0"/>
-  </elements>
-  <elements xsi:type="notation:Shape" xmi:id="_y7ixYGedEe-RN6juRAGSiw">
-    <semanticElement xmi:id="_y7ixYWedEe-RN6juRAGSiw" elementId="_y7gVIWedEe-RN6juRAGSiw"/>
-    <position xmi:id="_y7ixYmedEe-RN6juRAGSiw"/>
-    <size xmi:id="_y7ixY2edEe-RN6juRAGSiw" width="60.0" height="45.0"/>
-  </elements>
-  <elements xsi:type="notation:Shape" xmi:id="_0ZzfIGedEe-RN6juRAGSiw">
-    <semanticElement xmi:id="_0ZzfIWedEe-RN6juRAGSiw" elementId="_0Zy4EGedEe-RN6juRAGSiw"/>
-    <position xmi:id="_-PLrAGesEe-xapx0e2HHbg" x="487.0" y="7.0"/>
-    <size xmi:id="_-PLrAWesEe-xapx0e2HHbg" width="61.57942771911621" height="45.0"/>
-  </elements>
-  <elements xsi:type="notation:Shape" xmi:id="_pFRaYGeeEe-RN6juRAGSiw">
-    <semanticElement xmi:id="_pFRaYWeeEe-RN6juRAGSiw" elementId="_pFQzUGeeEe-RN6juRAGSiw"/>
-    <position xmi:id="_pFRaYmeeEe-RN6juRAGSiw"/>
-    <size xmi:id="_pFRaY2eeEe-RN6juRAGSiw" width="60.0" height="45.0"/>
   </elements>
   <elements xsi:type="notation:Shape" xmi:id="_-OxbUGesEe-xapx0e2HHbg">
     <semanticElement xmi:id="_-OxbUWesEe-xapx0e2HHbg" elementId="_98AQUGesEe-xapx0e2HHbg"/>

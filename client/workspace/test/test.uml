@@ -10,25 +10,18 @@
       <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_MYfmgWeWEe-I19UWYsPx4Q" value="1"/>
     </ownedAttribute>
   </packagedElement>
-  <packagedElement xsi:type="uml:Class" xmi:id="_Jud9gAiREe-PucyD8uwGDw" name="Page" visibility="public">
+  <packagedElement xsi:type="uml:Class" xmi:id="_Jud9gAiREe-PucyD8uwGDw" name="Page" visibility="private">
     <ownedAttribute xmi:id="_QazSoQiREe-PucyD8uwGDw" name="" type="_InP2wAiREe-PucyD8uwGDw" aggregation="shared" association="_QazSoAiREe-PucyD8uwGDw">
       <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_QazSogiREe-PucyD8uwGDw" value="1"/>
       <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_QazSowiREe-PucyD8uwGDw" value="1"/>
     </ownedAttribute>
-    <ownedAttribute xmi:id="_x0mnABH0Ee-rE5G-EDyVkA" name="WordCount">
+    <ownedAttribute xmi:id="_x0mnABH0Ee-rE5G-EDyVkA" name="WordCount" visibility="private">
       <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_x0mnARH0Ee-rE5G-EDyVkA" value="1"/>
       <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_x0mnAhH0Ee-rE5G-EDyVkA" value="1"/>
     </ownedAttribute>
-    <ownedOperation xmi:id="_q_lP8RH0Ee-rE5G-EDyVkA" name="create">
+    <ownedOperation xmi:id="_q_lP8RH0Ee-rE5G-EDyVkA" name="get_word_count">
       <ownedParameter xmi:id="_98AQUGesEe-xapx0e2HHbg" name="Parameter"/>
     </ownedOperation>
   </packagedElement>
   <packagedElement xsi:type="uml:Association" xmi:id="_QazSoAiREe-PucyD8uwGDw" memberEnd="_QazSoQiREe-PucyD8uwGDw _QazSpAiREe-PucyD8uwGDw"/>
-  <packagedElement xsi:type="uml:Class" xmi:id="_y7gVIWedEe-RN6juRAGSiw" name="tiger">
-    <ownedAttribute xmi:id="_pFQzUGeeEe-RN6juRAGSiw" name="color" visibility="private">
-      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_pFQzUWeeEe-RN6juRAGSiw" value="1"/>
-      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_pFQzUmeeEe-RN6juRAGSiw" value="1"/>
-    </ownedAttribute>
-  </packagedElement>
-  <packagedElement xsi:type="uml:Class" xmi:id="_0Zy4EGedEe-RN6juRAGSiw" name="Dog"/>
 </uml:Model>
