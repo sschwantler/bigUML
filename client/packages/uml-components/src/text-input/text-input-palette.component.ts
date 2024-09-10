@@ -14,7 +14,7 @@ import {
     ElementTextProperty,
     UpdateElementPropertyAction
 } from '@borkdominik-biguml/uml-protocol';
-import { Action, CreateNodeOperation, CreateEdgeOperation, DeleteElementOperation } from '@eclipse-glsp/protocol';
+import { Action, CreateNodeOperation, CreateEdgeOperation, DeleteElementOperation, SelectAction } from '@eclipse-glsp/protocol';
 import { TextField as VSCodeTextField } from '@vscode/webview-ui-toolkit';
 import { PropertyValues, TemplateResult, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
@@ -187,7 +187,17 @@ export class TextInputPalette extends BigElement {
                     console.error("Nothing selected");
                     return;
                 }
-                // TODO implement
+                
+                this.dispatchEvent(
+                    new CustomEvent<Action>('dispatch-action', {
+                        detail: UpdateElementPropertyAction.create({
+                            elementId: "_Jud9gAiREe-PucyD8uwGDw",
+                            propertyId: "name",
+                            value: "New Page"
+                        })
+                    })
+                );
+
                 break;
             }
             case Intents.CREATE_RELATION: {
@@ -205,7 +215,6 @@ export class TextInputPalette extends BigElement {
             default: {
                 console.log("Buhu ;(");
             }
-            // todo set focus on created relation
         }
     }
 
@@ -224,7 +233,7 @@ export class TextInputPalette extends BigElement {
             new CustomEvent('dispatch-action', {
                 detail: CreateNodeOperation.create(json.is_abstract ? `CLASS__AbstractClass` : `CLASS__Class`, 
                 {
-                    containerId: "_Ixd8AN8LEe6XScRLwR9PWg",
+                    containerId: "_Ixd8AN8LEe6XScRLwR9PWg", // TODO get from current model
                     location: {
                         x: 0,
                         y: 0
@@ -236,6 +245,13 @@ export class TextInputPalette extends BigElement {
                 })
             })
         );
+        this.dispatchEvent(
+            new CustomEvent('dispatch-action', {
+                detail: SelectAction.create({ selectedElementsIDs: ["_Jud9gAiREe-PucyD8uwGDw"], deselectedElementsIDs: [] })
+            })
+        );
+        
+        // todo set focus on created class
     }
 
     // abstract parent for addAttribute and addMethod
@@ -338,7 +354,7 @@ export class TextInputPalette extends BigElement {
             <div class="grid-value grid-flex">
                 <vscode-text-field .value="${this.inputText}" @input="${(event: any) => (this.inputText = event.target?.value)}"></vscode-text-field>
                 <vscode-button appearance="primary" @click="${this.onStartIntent}"> Send </vscode-button>
-                <!--<vscode-button appearance="primary" @click="${this.onRecordAudio}"> Record </vscode-button>-->
+                <vscode-button appearance="primary" @click="${this.onRecordAudio}"> Record </vscode-button>
             </div>
         `
     }
