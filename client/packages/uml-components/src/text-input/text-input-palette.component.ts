@@ -41,6 +41,8 @@ export class TextInputPalette extends BigElement {
     @state()
     protected navigationIds: { [key: string]: { from: string; to: string }[] } = {};
 
+    private BASE_URL: string = "http://localhost:8000";
+
     private mediaRecorder: MediaRecorder | null = null;
     private audioChunks: BlobPart[] = [];
 
@@ -112,7 +114,7 @@ export class TextInputPalette extends BigElement {
         formData.append("file", new File([audioBlob], "recording.wav"));
 
         try {
-            const response = await fetch('http://localhost:8000/transcribe/', {
+            const response = await fetch(this.BASE_URL + '/transcribe/', {
                 method: 'POST',
                 body: formData,
             });
@@ -134,8 +136,9 @@ export class TextInputPalette extends BigElement {
         console.log("onStartIntent");
         console.log(this.properties);
         console.log(this.navigationIds);
+        console.log(this.component);
 
-        const response = await fetch(`http://127.0.0.1:8000/intent/?user_query=${this.inputText}`, {
+        const response = await fetch(this.BASE_URL + `/intent/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
             }
@@ -219,7 +222,7 @@ export class TextInputPalette extends BigElement {
     }
 
     protected async createClass() {
-        const response = await fetch(`http://127.0.0.1:8000/create-class/?user_query=${this.inputText}`, {
+        const response = await fetch(this.BASE_URL + `/create-class/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
             },
@@ -245,18 +248,19 @@ export class TextInputPalette extends BigElement {
                 })
             })
         );
+        /*
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: SelectAction.create({ selectedElementsIDs: ["_Jud9gAiREe-PucyD8uwGDw"], deselectedElementsIDs: [] })
             })
         );
-        
+        */
         // todo set focus on created class
     }
 
     // abstract parent for addAttribute and addMethod
     protected async addValue() {
-        const response = await fetch(`http://127.0.0.1:8000/add-value/?user_query=${this.inputText}`, {
+        const response = await fetch(this.BASE_URL + `/add-value/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
             },
@@ -270,16 +274,6 @@ export class TextInputPalette extends BigElement {
 
     protected async addAttribute() {
         const json = await this.addValue();
-        // todo destinguish between method param and class param
-        
-        /*
-        if method param:
-            this.dispatchEvent(
-                new CustomEvent<Action>('dispatch-action', {
-                    detail: event.detail.action
-                })
-            );
-        */
 
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
@@ -314,7 +308,7 @@ export class TextInputPalette extends BigElement {
     }
 
     protected async createRelation() {
-        const response = await fetch(`http://127.0.0.1:8000/add-relation/?user_query=${this.inputText}`, {
+        const response = await fetch(this.BASE_URL + `/add-relation/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
             },
