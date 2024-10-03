@@ -136,7 +136,6 @@ export class TextInputPalette extends BigElement {
         console.log("onStartIntent");
         console.log(this.properties);
         console.log(this.navigationIds);
-        console.log(this.component);
 
         const response = await fetch(this.BASE_URL + `/intent/?user_query=${this.inputText}`, {
             headers: {
@@ -248,13 +247,13 @@ export class TextInputPalette extends BigElement {
                 })
             })
         );
-        /*
+        
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: SelectAction.create({ selectedElementsIDs: ["_Jud9gAiREe-PucyD8uwGDw"], deselectedElementsIDs: [] })
             })
         );
-        */
+        
         // todo set focus on created class
     }
 

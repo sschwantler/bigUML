@@ -24,6 +24,4 @@
     </ownedOperation>
   </packagedElement>
   <packagedElement xsi:type="uml:Association" xmi:id="_QazSoAiREe-PucyD8uwGDw" memberEnd="_QazSoQiREe-PucyD8uwGDw _QazSpAiREe-PucyD8uwGDw"/>
-  <packagedElement xsi:type="uml:Class" xmi:id="_dzXccIF1Ee-SCYqck1MNCQ" name="tiger"/>
-  <packagedElement xsi:type="uml:Class" xmi:id="_xW6UkIF1Ee-SCYqck1MNCQ" name="cat"/>
 </uml:Model>

@@ -39,14 +39,4 @@
     <position xmi:id="_-OxbUmesEe-xapx0e2HHbg"/>
     <size xmi:id="_-OxbU2esEe-xapx0e2HHbg" width="60.0" height="45.0"/>
   </elements>
-  <elements xsi:type="notation:Shape" xmi:id="_dzXccYF1Ee-SCYqck1MNCQ">
-    <semanticElement xmi:id="_dzXccoF1Ee-SCYqck1MNCQ" elementId="_dzXccIF1Ee-SCYqck1MNCQ"/>
-    <position xmi:id="_vRybIIF1Ee-SCYqck1MNCQ" x="339.0" y="140.0"/>
-    <size xmi:id="_vRybIYF1Ee-SCYqck1MNCQ" width="76.22330856323242" height="45.0"/>
-  </elements>
-  <elements xsi:type="notation:Shape" xmi:id="_xW67oIF1Ee-SCYqck1MNCQ">
-    <semanticElement xmi:id="_xW67oYF1Ee-SCYqck1MNCQ" elementId="_xW6UkIF1Ee-SCYqck1MNCQ"/>
-    <position xmi:id="_xW67ooF1Ee-SCYqck1MNCQ"/>
-    <size xmi:id="_xW67o4F1Ee-SCYqck1MNCQ" width="60.0" height="45.0"/>
-  </elements>
 </unotation:UMLDiagram>
