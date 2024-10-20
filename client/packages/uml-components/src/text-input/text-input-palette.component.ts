@@ -10,7 +10,9 @@
 import {
     ActionMessageNotification,
     ElementProperties,
-    UpdateElementPropertyAction
+    UpdateElementPropertyAction,
+    BGModelResource,
+    RefreshPropertyPaletteAction
 } from '@borkdominik-biguml/uml-protocol';
 import { Action, CreateNodeOperation, CreateEdgeOperation, DeleteElementOperation, SelectAction } from '@eclipse-glsp/protocol';
 import { PropertyValues, TemplateResult, html } from 'lit';
@@ -33,6 +35,11 @@ export class TextInputPalette extends BigElement {
 
     @property({ type: Object })
     properties?: ElementProperties;
+
+    @property({ type: Object })
+    protected umlModel?: BGModelResource;
+    @property({ type: Object })
+    protected unotationModel?: BGModelResource;
 
     @state() inputText = '...';
 
@@ -134,6 +141,8 @@ export class TextInputPalette extends BigElement {
         console.log("onStartIntent");
         console.log(this.properties);
         console.log(this.navigationIds);
+        console.log(this.umlModel);
+        console.log(this.unotationModel);
 
         const response = await fetch(this.BASE_URL + `/intent/?user_query=${this.inputText}`, {
             headers: {
@@ -156,7 +165,8 @@ export class TextInputPalette extends BigElement {
             CHANGE_VISIBILITY_INTENT = "ChangeVisibility",
             CHANGE_DATATYPE_INTENT = "ChangeDatatype",
             CREATE_RELATION = "AddRelation",
-            DELETE_INTENT = "Delete"
+            DELETE_INTENT = "Delete",
+            FOCUS_INTENT = "Focus"
         }
 
         console.log(intent);
@@ -210,6 +220,10 @@ export class TextInputPalette extends BigElement {
                     return;
                 }
                 this.deleteElement();
+                break;
+            }
+            case Intents.FOCUS_INTENT: {
+                this.focusElement();
                 break;
             }
             default: {
@@ -337,6 +351,30 @@ export class TextInputPalette extends BigElement {
                 detail: DeleteElementOperation.create(elementIdList, {})
             })
         );
+    }
+
+    protected async focusElement() {
+        const response = await fetch(this.BASE_URL + `/focus/?user_query=${this.inputText}`, {
+            headers: {
+                'accept': 'application/json',
+                'content-type': 'application/json;charset=UTF-8'
+            },
+            method: "POST",
+            body: JSON.stringify({
+                uml_model: this.umlModel?.content,
+                unotation_model: this.unotationModel?.content
+            })
+        });
+        if (!response.ok) {
+            console.error(response.text);
+        }
+        const json = await response.json();
+        this.dispatchEvent(
+            new CustomEvent('dispatch-action', {
+                detail: SelectAction.create({ selectedElementsIDs: [json.element_id], deselectedElementsIDs: true })
+            })
+        );
+        this.sendNotification(RefreshPropertyPaletteAction.create());
     }
 
     protected textFieldWithButtonTemplate(): TemplateResult<1> {

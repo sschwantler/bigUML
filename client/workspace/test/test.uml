@@ -24,4 +24,10 @@
     </ownedOperation>
   </packagedElement>
   <packagedElement xsi:type="uml:Association" xmi:id="_QazSoAiREe-PucyD8uwGDw" memberEnd="_QazSoQiREe-PucyD8uwGDw _QazSpAiREe-PucyD8uwGDw"/>
+  <packagedElement xsi:type="uml:Class" xmi:id="_eoSIMI7cEe-kC8O_COEMrA" name="person">
+    <ownedAttribute xmi:id="_PNIIUI8JEe-0rcb27vJo3w" name="size" visibility="private">
+      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_PNNA0I8JEe-0rcb27vJo3w" value="1"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_PNNA0Y8JEe-0rcb27vJo3w" value="1"/>
+    </ownedAttribute>
+  </packagedElement>
 </uml:Model>
