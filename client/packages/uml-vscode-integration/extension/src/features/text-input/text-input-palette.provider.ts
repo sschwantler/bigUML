@@ -12,6 +12,9 @@ import { injectable, postConstruct } from 'inversify';
 import { VSCodeSettings } from '../../language';
 import { getBundleUri, getUri } from '../../utilities/webview';
 import { ProviderWebviewContext, UMLWebviewProvider } from '../../vscode/webview/webview-provider';
+import { InitializeCanvasBoundsAction, SetModelAction, SetViewportAction, UpdateModelAction } from '@eclipse-glsp/client';
+import { MinimapExportSvgAction, RequestMinimapExportSvgAction, RequestModelResourcesAction } from '@borkdominik-biguml/uml-protocol';
+
 
 @injectable()
 export class TextInputPaletteProvider extends UMLWebviewProvider {
@@ -22,28 +25,9 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
     protected override retainContextWhenHidden = true;
 
     @postConstruct()
-    override initialize(): void {
-        super.initialize();
-        // this.connector.onDidActiveClientChange(client => {
-        //     this.connector.sendActionToClient(client.clientId, RefreshPropertyPaletteAction.create());
-        // });
-
-        // this.connector.onDidClientViewStateChange(() => {
-        //     setTimeout(() => {
-        //         if (this.connector.clients.every(c => !c.webviewEndpoint.webviewPanel.active)) {
-        //             this.sendActionToWebview(SetPropertyPaletteAction.create());
-        //         }
-        //     }, 100);
-        // });
-        // this.connector.onDidClientDispose(() => {
-        //     if (this.connector.documents.length === 0) {
-        //         this.sendActionToWebview(SetPropertyPaletteAction.create());
-        //     }
-        // });
-        this.connector.onActionMessage(message => {
-            const { action } = message;
-            this.sendActionToWebview(action);
-        });
+    override init(): void {
+        super.init();
+        this.extensionHostConnection.cacheActions([InitializeCanvasBoundsAction.KIND, SetViewportAction.KIND, MinimapExportSvgAction.KIND]);
     }
 
     protected resolveHTML(providerContext: ProviderWebviewContext): void {
@@ -68,4 +52,29 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
         </body>
         </html>`;
     }
+
+    protected override handleConnection(): void {
+        // ==== Webview Extension Host ====
+        this.extensionHostConnection.onActionMessage(message => {
+            if (UpdateModelAction.is(message.action) || SetModelAction.is(message.action)) {
+                this.extensionHostConnection.send(RequestMinimapExportSvgAction.create());
+            }
+        });
+        this.extensionHostConnection.onNoActiveClient(() => {
+            this.webviewViewConnection.send(MinimapExportSvgAction.create());
+        });
+
+        // ==== Webview View Connection ====
+        this.webviewViewConnection.onActionMessage(message => {
+            if (message.action.kind === 'textInputReady') {
+                this.extensionHostConnection.send(RequestMinimapExportSvgAction.create());
+                // =============== REQUEST MODEL RESOURCES ===============
+                this.extensionHostConnection.send(RequestModelResourcesAction.create());
+                this.extensionHostConnection.forwardCachedActionsToWebview();
+            } else {
+                this.extensionHostConnection.send(message.action);
+            }
+        });
+    }
+
 }

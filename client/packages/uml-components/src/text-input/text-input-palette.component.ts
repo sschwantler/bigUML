@@ -8,20 +8,19 @@
  *********************************************************************************/
 
 import {
+    ActionMessageNotification,
     ElementProperties,
-    ElementProperty,
-    ElementReferenceProperty,
-    ElementTextProperty,
     UpdateElementPropertyAction
 } from '@borkdominik-biguml/uml-protocol';
-import { Action, CreateNodeOperation, CreateEdgeOperation, DeleteElementOperation, SelectAction } from '@eclipse-glsp/protocol';
-import { TextField as VSCodeTextField } from '@vscode/webview-ui-toolkit';
+import { Action, CreateNodeOperation, CreateEdgeOperation, DeleteElementOperation, SelectAction, ActionMessage } from '@eclipse-glsp/protocol';
 import { PropertyValues, TemplateResult, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { BigElement } from '../base/component';
 import '../global';
-import { TextInputDeleteEventDetail, TextInputNameChangeDetail, TextInputOrderDetail } from './reference/text-input-palette-reference.component';
 import { TextInputPaletteStyle } from './text-input-palette.style';
+import { messenger } from '../vscode/messenger';
+import { HOST_EXTENSION } from 'vscode-messenger-common';
+import { useToolkit } from '../toolkit';
 
 export function defineTextInputPalette(): void {
     customElements.define('big-text-input-palette', TextInputPalette);
@@ -45,6 +44,23 @@ export class TextInputPalette extends BigElement {
 
     private mediaRecorder: MediaRecorder | null = null;
     private audioChunks: BlobPart[] = [];
+
+    override connectedCallback(): void {
+        super.connectedCallback();
+        useToolkit();
+
+        document.addEventListener('contextmenu', event => {
+            event.stopImmediatePropagation();
+        });
+        // We get the send actions from sendActionToWebview from minimap.provider.ts
+        messenger.onNotification<ActionMessage>(ActionMessageNotification, message => {
+
+        });
+
+        messenger.start();
+
+        this.sendNotification({ kind: 'textInputReady' });
+    }
 
     protected override render(): TemplateResult<1> {
         return html`<div>${this.headerTemplate()} ${this.bodyTemplate()}</div>`;
@@ -352,73 +368,10 @@ export class TextInputPalette extends BigElement {
         `
     }
 
-    protected textFieldTemplate(item: ElementTextProperty): TemplateResult<1> {
-        const onChange = (event: CustomEvent): void => {
-            const target = event.target as VSCodeTextField;
-            this.onPropertyChange(item, target.value);
-        };
-
-        return html`<div class="grid-label">${item.label}</div>
-            <div class="grid-value grid-flex">
-                <vscode-text-field .value="${item.text}" @change="${onChange}" ?disabled="${item.disabled}"></vscode-text-field>
-            </div>`;
-    }
-
-    protected onPropertyChange(item: ElementProperty, value: string): void {
-        const { elementId, propertyId } = item;
-
-        this.dispatchEvent(
-            new CustomEvent<Action>('dispatch-action', {
-                detail: UpdateElementPropertyAction.create({
-                    elementId,
-                    propertyId,
-                    value
-                })
-            })
-        );
-    }
-
-    protected onOrderChange(event: CustomEvent<TextInputOrderDetail>): void {
-        const { element, updates } = event.detail;
-
-        this.dispatchEvent(
-            new CustomEvent<Action>('dispatch-action', {
-                detail: UpdateElementPropertyAction.create({
-                    elementId: element.elementId,
-                    propertyId: `${element.propertyId}_index`,
-                    value: JSON.stringify(updates)
-                })
-            })
-        );
-    }
-
-    protected onPropertyNameChange(event: CustomEvent<TextInputNameChangeDetail>): void {
-        const { elementId, name } = event.detail;
-
-        this.dispatchEvent(
-            new CustomEvent<Action>('dispatch-action', {
-                detail: UpdateElementPropertyAction.create({
-                    elementId,
-                    propertyId: 'name',
-                    value: name
-                })
-            })
-        );
-    }
-
-    protected onPropertyCreate(event: CustomEvent<ElementReferenceProperty.CreateReference>): void {
-        this.dispatchEvent(
-            new CustomEvent<Action>('dispatch-action', {
-                detail: event.detail.action
-            })
-        );
-    }
-
-    protected onPropertyDelete(event: CustomEvent<TextInputDeleteEventDetail>): void {
-        this.dispatchEvent(
-            new CustomEvent<Action[]>('dispatch-action', {
-                detail: event.detail.references.flatMap(r => r.deleteActions)
-            })
-        );
+    protected sendNotification(action: Action): void {
+        messenger.sendNotification(ActionMessageNotification, HOST_EXTENSION, {
+            clientId: this.clientId,
+            action
+        });
     }
 }

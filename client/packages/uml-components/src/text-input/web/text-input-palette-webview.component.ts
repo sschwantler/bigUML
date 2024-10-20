@@ -80,9 +80,6 @@ export class TextInputPaletteWebview extends BigElement {
 
     protected sendNotification(action: Action): void {
 
-        console.log("sendNotification");
-        console.log(action);
-
         messenger.sendNotification(ActionMessageNotification, HOST_EXTENSION, {
             clientId: this.clientId,
             action
