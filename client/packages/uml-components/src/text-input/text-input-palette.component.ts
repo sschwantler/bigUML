@@ -12,7 +12,7 @@ import {
     ElementProperties,
     UpdateElementPropertyAction
 } from '@borkdominik-biguml/uml-protocol';
-import { Action, CreateNodeOperation, CreateEdgeOperation, DeleteElementOperation, SelectAction, ActionMessage } from '@eclipse-glsp/protocol';
+import { Action, CreateNodeOperation, CreateEdgeOperation, DeleteElementOperation, SelectAction } from '@eclipse-glsp/protocol';
 import { PropertyValues, TemplateResult, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { BigElement } from '../base/component';
@@ -20,7 +20,6 @@ import '../global';
 import { TextInputPaletteStyle } from './text-input-palette.style';
 import { messenger } from '../vscode/messenger';
 import { HOST_EXTENSION } from 'vscode-messenger-common';
-import { useToolkit } from '../toolkit';
 
 export function defineTextInputPalette(): void {
     customElements.define('big-text-input-palette', TextInputPalette);
@@ -44,23 +43,6 @@ export class TextInputPalette extends BigElement {
 
     private mediaRecorder: MediaRecorder | null = null;
     private audioChunks: BlobPart[] = [];
-
-    override connectedCallback(): void {
-        super.connectedCallback();
-        useToolkit();
-
-        document.addEventListener('contextmenu', event => {
-            event.stopImmediatePropagation();
-        });
-        // We get the send actions from sendActionToWebview from minimap.provider.ts
-        messenger.onNotification<ActionMessage>(ActionMessageNotification, message => {
-
-        });
-
-        messenger.start();
-
-        this.sendNotification({ kind: 'textInputReady' });
-    }
 
     protected override render(): TemplateResult<1> {
         return html`<div>${this.headerTemplate()} ${this.bodyTemplate()}</div>`;
