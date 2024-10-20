@@ -10,6 +10,7 @@
 import {
     ActionMessageNotification,
     ElementProperties,
+    ModelResourcesResponseAction,
     RefreshPropertyPaletteAction,
     SetPropertyPaletteAction
 } from '@borkdominik-biguml/uml-protocol';
@@ -44,14 +45,13 @@ export class TextInputPaletteWebview extends BigElement {
 
         messenger.onNotification<ActionMessage>(ActionMessageNotification, message => {
             const { clientId, action } = message;
-            console.log("onNotification");
-            console.log(message);
-            console.log(clientId);
-            console.log(action);
-
             if (SetPropertyPaletteAction.is(action)) {
                 this.clientId = clientId;
                 this.elementProperties = action.palette;
+            } else if (ModelResourcesResponseAction.KIND === action.kind) {
+                console.log("####GOT IT");
+                console.log(action.kind);
+                console.log(action);
             } else {
                 console.warn('Unsupported action', action);
             }
@@ -59,6 +59,7 @@ export class TextInputPaletteWebview extends BigElement {
         messenger.start();
 
         this.sendNotification(RefreshPropertyPaletteAction.create());
+        this.sendNotification({ kind: 'requestModelResources' });
     }
 
     protected override render(): TemplateResult<1> {
@@ -71,10 +72,6 @@ export class TextInputPaletteWebview extends BigElement {
     }
 
     protected onDispatchAction(event: CustomEvent<Action>): void {
-
-        console.log("onDispatchAction");
-        console.log(event.detail);
-
         this.sendNotification(event.detail);
     }
 

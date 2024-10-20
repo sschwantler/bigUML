@@ -12,8 +12,8 @@ import { injectable, postConstruct } from 'inversify';
 import { VSCodeSettings } from '../../language';
 import { getBundleUri, getUri } from '../../utilities/webview';
 import { ProviderWebviewContext, UMLWebviewProvider } from '../../vscode/webview/webview-provider';
-import { InitializeCanvasBoundsAction, SetModelAction, SetViewportAction, UpdateModelAction } from '@eclipse-glsp/client';
-import { MinimapExportSvgAction, RequestMinimapExportSvgAction, RequestModelResourcesAction } from '@borkdominik-biguml/uml-protocol';
+import { InitializeCanvasBoundsAction, SetViewportAction } from '@eclipse-glsp/client';
+import { MinimapExportSvgAction, ModelResourcesResponseAction, RefreshPropertyPaletteAction, RequestMinimapExportSvgAction, RequestModelResourcesAction, SetPropertyPaletteAction } from '@borkdominik-biguml/uml-protocol';
 
 
 @injectable()
@@ -27,7 +27,7 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
     @postConstruct()
     override init(): void {
         super.init();
-        this.extensionHostConnection.cacheActions([InitializeCanvasBoundsAction.KIND, SetViewportAction.KIND, MinimapExportSvgAction.KIND]);
+        this.extensionHostConnection.cacheActions([InitializeCanvasBoundsAction.KIND, SetViewportAction.KIND, MinimapExportSvgAction.KIND, SetPropertyPaletteAction.KIND]);
     }
 
     protected resolveHTML(providerContext: ProviderWebviewContext): void {
@@ -56,12 +56,23 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
     protected override handleConnection(): void {
         // ==== Webview Extension Host ====
         this.extensionHostConnection.onActionMessage(message => {
-            if (UpdateModelAction.is(message.action) || SetModelAction.is(message.action)) {
-                this.extensionHostConnection.send(RequestMinimapExportSvgAction.create());
+            if (ModelResourcesResponseAction.is(message.action)) {
+                // =============== FORWARD DATA TO WEBVIEW ===============
+                console.log('ModelResourcesResponseAction', message.action);
+                this.webviewViewConnection.send(message.action);
+                this.webviewViewConnection.send(SetPropertyPaletteAction.create());
             }
         });
         this.extensionHostConnection.onNoActiveClient(() => {
             this.webviewViewConnection.send(MinimapExportSvgAction.create());
+        });
+        this.extensionHostConnection.onDidActiveClientChange(client => {
+            this.extensionHostConnection.sendTo(client.clientId, RefreshPropertyPaletteAction.create());
+        });
+        this.extensionHostConnection.onNoActiveClient(() => {
+            if (this.connector.documents.length === 0) {
+                this.webviewViewConnection.send(SetPropertyPaletteAction.create());
+            }
         });
 
         // ==== Webview View Connection ====

@@ -45,6 +45,8 @@ export class PropertyPaletteWebview extends BigElement {
         messenger.onNotification<ActionMessage>(ActionMessageNotification, message => {
             const { clientId, action } = message;
             if (SetPropertyPaletteAction.is(action)) {
+                console.log("property palette updated clientId");
+                console.log(action);
                 this.clientId = clientId;
                 this.elementProperties = action.palette;
             } else {
