@@ -62,7 +62,7 @@ export class TextInputPaletteWebview extends BigElement {
                 this.umlModel = action.resources.uml as BGModelResource;
                 this.unotationModel = action.resources.unotation as BGModelResource;
             } else if (SelectAction.is(action)) {
-                
+                console.log("+++");
             } else {
                 console.warn('Unsupported action', action);
             }

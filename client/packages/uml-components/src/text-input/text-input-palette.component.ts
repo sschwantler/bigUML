@@ -143,6 +143,7 @@ export class TextInputPalette extends BigElement {
         console.log(this.navigationIds);
         console.log(this.umlModel);
         console.log(this.unotationModel);
+        console.log(this.clientId)
 
         const response = await fetch(this.BASE_URL + `/intent/?user_query=${this.inputText}`, {
             headers: {
@@ -153,7 +154,9 @@ export class TextInputPalette extends BigElement {
             console.error(response.text)
         }
         const json = await response.json();
-        this.handleIntent(json.intent)
+        this.handleIntent(json.intent);
+        this.sendNotification(RefreshPropertyPaletteAction.create());
+        this.sendNotification({ kind: 'requestModelResources' });
     }
 
     protected async handleIntent(intent: string) {
@@ -166,7 +169,8 @@ export class TextInputPalette extends BigElement {
             CHANGE_DATATYPE_INTENT = "ChangeDatatype",
             CREATE_RELATION = "AddRelation",
             DELETE_INTENT = "Delete",
-            FOCUS_INTENT = "Focus"
+            FOCUS_INTENT = "Focus",
+            MOVE = "Move"
         }
 
         console.log(intent);
@@ -210,6 +214,10 @@ export class TextInputPalette extends BigElement {
 
                 break;
             }
+            case Intents.CHANGE_VISIBILITY_INTENT:
+                break;
+            case Intents.CHANGE_DATATYPE_INTENT:
+                break
             case Intents.CREATE_RELATION: {
                 this.createRelation();
                 break;
@@ -226,6 +234,8 @@ export class TextInputPalette extends BigElement {
                 this.focusElement();
                 break;
             }
+            case Intents.MOVE:
+                break;
             default: {
                 console.log("Buhu ;(");
             }
@@ -233,6 +243,23 @@ export class TextInputPalette extends BigElement {
     }
 
     protected async createClass() {
+        const root = await fetch(this.BASE_URL + `/root`, {
+            headers: {
+                'accept': 'application/json',
+                'content-type': 'application/json;charset=UTF-8'
+            },
+            method: "POST",
+            body: JSON.stringify({
+                uml_model: this.umlModel?.content,
+                unotation_model: this.unotationModel?.content
+            })
+        });
+
+        if (!root.ok) {
+            console.error(root.text);
+        }
+        const root_json = await root.json();
+
         const response = await fetch(this.BASE_URL + `/create-class/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
@@ -247,7 +274,7 @@ export class TextInputPalette extends BigElement {
             new CustomEvent('dispatch-action', {
                 detail: CreateNodeOperation.create(json.is_abstract ? `CLASS__AbstractClass` : `CLASS__Class`, 
                 {
-                    containerId: "_Ixd8AN8LEe6XScRLwR9PWg", // TODO get from current model
+                    containerId: root_json.id,
                     location: {
                         x: 0,
                         y: 0
@@ -257,12 +284,6 @@ export class TextInputPalette extends BigElement {
                         isAbstract: json.is_abstract
                     }
                 })
-            })
-        );
-        
-        this.dispatchEvent(
-            new CustomEvent('dispatch-action', {
-                detail: SelectAction.create({ selectedElementsIDs: ["_Jud9gAiREe-PucyD8uwGDw"], deselectedElementsIDs: [] })
             })
         );
         
@@ -321,20 +342,27 @@ export class TextInputPalette extends BigElement {
     protected async createRelation() {
         const response = await fetch(this.BASE_URL + `/add-relation/?user_query=${this.inputText}`, {
             headers: {
-                accept: 'application/json'
+                'accept': 'application/json',
+                'content-type': 'application/json;charset=UTF-8'
             },
             method: "POST",
-            // todo requires current model .uml + .unotation
+            body: JSON.stringify({
+                uml_model: this.umlModel?.content,
+                unotation_model: this.unotationModel?.content
+            })
         });
         if (!response.ok) {
             console.error(response.text);
         }
         const json = await response.json();
+        console.log("##########");
+        console.log(json);
+        console.log(json.relation_type);
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: CreateEdgeOperation.create( 
                 {
-                    elementTypeId: "CLASS__" + json.realation_type,
+                    elementTypeId: "CLASS__" + json.relation_type,
                     sourceElementId: json.class_from_id,
                     targetElementId: json.class_to_id,
                     args: {}
@@ -374,7 +402,6 @@ export class TextInputPalette extends BigElement {
                 detail: SelectAction.create({ selectedElementsIDs: [json.element_id], deselectedElementsIDs: true })
             })
         );
-        this.sendNotification(RefreshPropertyPaletteAction.create());
     }
 
     protected textFieldWithButtonTemplate(): TemplateResult<1> {

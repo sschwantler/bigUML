@@ -30,4 +30,5 @@
       <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_PNNA0Y8JEe-0rcb27vJo3w" value="1"/>
     </ownedAttribute>
   </packagedElement>
+  <packagedElement xsi:type="uml:Class" xmi:id="_B1ty8Ja3Ee-H2qHKl9lOow" name="tiger"/>
 </uml:Model>
