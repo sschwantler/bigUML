@@ -174,6 +174,7 @@ export class TextInputPalette extends BigElement {
         }
 
         console.log(intent);
+        const elementId = this.properties?.elementId;
 
         switch(intent) {
             case Intents.CREATE_CLASS: {
@@ -181,53 +182,63 @@ export class TextInputPalette extends BigElement {
                 break;
             }
             case Intents.ADD_ATTRIBUTE: {
-                if (this.properties?.elementId == null) {
+                if (elementId !== undefined) {
+                    this.addAttribute(elementId);
+                } else {
                     console.error("Nothing selected");
-                    return;
                 }
-                this.addAttribute();
                 break;
             }
             case Intents.ADD_METHOD: {
-                if (this.properties?.elementId == null) {
+                if (elementId !== undefined) {
+                    this.addMethod(elementId);
+                } else {
                     console.error("Nothing selected");
-                    return;
                 }
-                this.addMethod();
                 break;
             }
             case Intents.CHANGE_NAME_INTENT: {
-                if (this.properties?.elementId == null) {
-                    console.error("Nothing selected");
-                    return;
-                }
-                
-                this.dispatchEvent(
-                    new CustomEvent<Action>('dispatch-action', {
-                        detail: UpdateElementPropertyAction.create({
-                            elementId: "_Jud9gAiREe-PucyD8uwGDw",
-                            propertyId: "name",
-                            value: "New Page"
+                if (elementId !== undefined) {
+                    this.dispatchEvent(
+                        new CustomEvent<Action>('dispatch-action', {
+                            detail: UpdateElementPropertyAction.create({
+                                elementId: elementId,
+                                propertyId: "name",
+                                value: "New Page"
+                            })
                         })
-                    })
-                );
-
+                    );
+                } else {
+                    console.error("Nothing selected");
+                }
                 break;
             }
             case Intents.CHANGE_VISIBILITY_INTENT:
+                if (elementId !== undefined) {
+                    this.changeVisibility(elementId);
+                } else {
+                    console.error("Nothing selected");
+                }
                 break;
             case Intents.CHANGE_DATATYPE_INTENT:
+                if (elementId !== undefined) {
+                    this.changeDatatype(elementId);
+                } else {
+                    console.error("Nothing selected");
+                }
+                break;
                 break
             case Intents.CREATE_RELATION: {
                 this.createRelation();
                 break;
             }
             case Intents.DELETE_INTENT: {
-                if (this.properties?.elementId == null) {
+                if (elementId !== undefined) {
+                    this.deleteElement(elementId);
+                } else {
                     console.error("Nothing selected");
-                    return;
                 }
-                this.deleteElement();
+                
                 break;
             }
             case Intents.FOCUS_INTENT: {
@@ -237,13 +248,13 @@ export class TextInputPalette extends BigElement {
             case Intents.MOVE:
                 break;
             default: {
-                console.log("Buhu ;(");
+                console.error("Buhu ;(");
             }
         }
     }
 
-    protected async createClass() {
-        const root = await fetch(this.BASE_URL + `/root`, {
+    protected async findIdByName(name: string, datatype: string) {
+        const response = await fetch(this.BASE_URL + `/find-id?name=${name}&element_type=${datatype}`, {
             headers: {
                 'accept': 'application/json',
                 'content-type': 'application/json;charset=UTF-8'
@@ -255,10 +266,14 @@ export class TextInputPalette extends BigElement {
             })
         });
 
-        if (!root.ok) {
-            console.error(root.text);
+        if (!response.ok) {
+            console.error(response.text);
         }
-        const root_json = await root.json();
+        return await response.json();
+    }
+
+    protected async createClass() {
+        const root_json = await this.findIdByName("root", "root");
 
         const response = await fetch(this.BASE_URL + `/create-class/?user_query=${this.inputText}`, {
             headers: {
@@ -294,6 +309,24 @@ export class TextInputPalette extends BigElement {
     protected async addValue() {
         const response = await fetch(this.BASE_URL + `/add-value/?user_query=${this.inputText}`, {
             headers: {
+                'accept': 'application/json',
+                'content-type': 'application/json;charset=UTF-8'
+            },
+            method: "POST",
+            body: JSON.stringify({
+                uml_model: this.umlModel?.content,
+                unotation_model: this.unotationModel?.content
+            })
+        });
+        if (!response.ok) {
+            console.error(response.text);
+        }
+        return await response.json();
+    }
+
+    protected async updateValue() {
+        const response = await fetch(this.BASE_URL + `/update-value/?user_query=${this.inputText}`, {
+            headers: {
                 accept: 'application/json'
             },
             method: "POST"
@@ -302,19 +335,20 @@ export class TextInputPalette extends BigElement {
             console.error(response.text);
         }
         return await response.json();
-    }
+    } 
 
-    protected async addAttribute() {
+    protected async addAttribute(focusedElement: string) {
         const json = await this.addValue();
+        console.error(json);
 
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: CreateNodeOperation.create(`CLASS__Property`, 
                 {
-                    containerId: this.properties?.elementId,
+                    containerId: focusedElement,
                     args: {
                         name: json.value_name,
-                        datatype: json.value_datatype,
+                        type_id: json.value_datatype,
                         visibility: json.value_visibility
                     }
                 })
@@ -322,14 +356,14 @@ export class TextInputPalette extends BigElement {
         );
     }
 
-    protected async addMethod() {
+    protected async addMethod(focusedElement: string) {
         const json = await this.addValue();
         // no return type
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: CreateNodeOperation.create(`CLASS__Operation`, 
                 {
-                    containerId: this.properties?.elementId,
+                    containerId: focusedElement,
                     args: {
                         name: json.value_name,
                         visibility: json.value_visibility
@@ -355,9 +389,6 @@ export class TextInputPalette extends BigElement {
             console.error(response.text);
         }
         const json = await response.json();
-        console.log("##########");
-        console.log(json);
-        console.log(json.relation_type);
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: CreateEdgeOperation.create( 
@@ -371,9 +402,8 @@ export class TextInputPalette extends BigElement {
         );
     }
 
-    protected async deleteElement() {
-        const elementIdString = this.properties?.elementId;
-        const elementIdList: string[] = elementIdString ? [elementIdString] : [];
+    protected async deleteElement(focusedElement: string) {
+        const elementIdList: string[] = focusedElement ? [focusedElement] : [];
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: DeleteElementOperation.create(elementIdList, {})
@@ -381,8 +411,37 @@ export class TextInputPalette extends BigElement {
         );
     }
 
-    protected async focusElement() {
-        const response = await fetch(this.BASE_URL + `/focus/?user_query=${this.inputText}`, {
+    protected async changeVisibility(focusedElement: string) {
+        const json = await this.updateValue();
+
+        this.dispatchEvent(
+            new CustomEvent<Action>('dispatch-action', {
+                detail: UpdateElementPropertyAction.create({
+                    elementId: focusedElement,
+                    propertyId: "visibilityKind",
+                    value: json.new_value
+                })
+            })
+        );
+    }
+
+    protected async changeDatatype(focusedElement: string) {
+        const json = await this.updateValue();
+        const found_json = await this.findIdByName(json.new_value, "class");  // todo "class" might be any container
+        
+        this.dispatchEvent(
+            new CustomEvent<Action>('dispatch-action', {
+                detail: UpdateElementPropertyAction.create({
+                    elementId: focusedElement,
+                    propertyId: "type",
+                    value: found_json.id
+                })
+            })
+        );
+    }
+
+    protected async find_element(query: string) {
+        const response = await fetch(this.BASE_URL + `/focus/?user_query=${query}`, {
             headers: {
                 'accept': 'application/json',
                 'content-type': 'application/json;charset=UTF-8'
@@ -396,7 +455,11 @@ export class TextInputPalette extends BigElement {
         if (!response.ok) {
             console.error(response.text);
         }
-        const json = await response.json();
+        return await response.json();
+    }
+
+    protected async focusElement() {
+        const json = await this.find_element(this.inputText);
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: SelectAction.create({ selectedElementsIDs: [json.element_id], deselectedElementsIDs: true })

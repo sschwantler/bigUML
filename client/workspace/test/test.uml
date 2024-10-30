@@ -25,10 +25,16 @@
   </packagedElement>
   <packagedElement xsi:type="uml:Association" xmi:id="_QazSoAiREe-PucyD8uwGDw" memberEnd="_QazSoQiREe-PucyD8uwGDw _QazSpAiREe-PucyD8uwGDw"/>
   <packagedElement xsi:type="uml:Class" xmi:id="_eoSIMI7cEe-kC8O_COEMrA" name="person">
-    <ownedAttribute xmi:id="_PNIIUI8JEe-0rcb27vJo3w" name="size" visibility="private">
+    <ownedAttribute xmi:id="_PNIIUI8JEe-0rcb27vJo3w" name="size" visibility="private" type="_InP2wAiREe-PucyD8uwGDw">
       <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_PNNA0I8JEe-0rcb27vJo3w" value="1"/>
       <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_PNNA0Y8JEe-0rcb27vJo3w" value="1"/>
     </ownedAttribute>
   </packagedElement>
-  <packagedElement xsi:type="uml:Class" xmi:id="_B1ty8Ja3Ee-H2qHKl9lOow" name="tiger"/>
+  <packagedElement xsi:type="uml:Class" xmi:id="_B1ty8Ja3Ee-H2qHKl9lOow" name="tiger" visibility="public">
+    <ownedAttribute xmi:id="_tJjxUJbUEe-4XdGT1IJFqQ" name="size" visibility="private" type="_Jud9gAiREe-PucyD8uwGDw">
+      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_tJjxUZbUEe-4XdGT1IJFqQ" value="1"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_tJkYYJbUEe-4XdGT1IJFqQ" value="1"/>
+    </ownedAttribute>
+    <ownedOperation xmi:id="_IeBS8ZbTEe-4XdGT1IJFqQ" name="Operation"/>
+  </packagedElement>
 </uml:Model>

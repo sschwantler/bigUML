@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.glsp.server.operations.CreateNodeOperation;
 import org.eclipse.uml2.uml.AttributeOwner;
 import org.eclipse.uml2.uml.Property;
+import org.eclipse.uml2.uml.Type;
 import org.eclipse.uml2.uml.VisibilityKind;
 
 import com.borkdominik.big.glsp.server.core.commands.semantic.BGCreateNodeSemanticCommand;
@@ -44,15 +45,15 @@ public class PropertyOperationHandler extends BGEMFNodeOperationHandler<Property
          .supplier((x) -> {
             if (x instanceof AttributeOwner y) {
                String name = null;
-               String type = null;
+               String type_id = null;
                VisibilityKind visibility = null;
                if (operation.getArgs() != null) {
                   name = operation.getArgs().getOrDefault("name", null);
-                  type = operation.getArgs().getOrDefault("datatype", null);
+                  type_id = operation.getArgs().getOrDefault("type_id", null);
                   visibility = VisibilityKind.get(operation.getArgs().getOrDefault("visibility", null));
                }
-
-               var element = y.createOwnedAttribute(name, null); // TODO set type
+               var type = modelState.getElementIndex().getOrThrow(type_id, Type.class);
+               var element = y.createOwnedAttribute(name, type);
                element.setLower(1);
                element.setUpper(1);
 
