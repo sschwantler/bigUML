@@ -24,17 +24,15 @@
     </ownedOperation>
   </packagedElement>
   <packagedElement xsi:type="uml:Association" xmi:id="_QazSoAiREe-PucyD8uwGDw" memberEnd="_QazSoQiREe-PucyD8uwGDw _QazSpAiREe-PucyD8uwGDw"/>
-  <packagedElement xsi:type="uml:Class" xmi:id="_eoSIMI7cEe-kC8O_COEMrA" name="person">
-    <ownedAttribute xmi:id="_PNIIUI8JEe-0rcb27vJo3w" name="size" visibility="private" type="_InP2wAiREe-PucyD8uwGDw">
-      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_PNNA0I8JEe-0rcb27vJo3w" value="1"/>
-      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_PNNA0Y8JEe-0rcb27vJo3w" value="1"/>
+  <packagedElement xsi:type="uml:Class" xmi:id="_KGEogKDcEe-SLuTeLQW-Dg" name="person" isAbstract="true">
+    <ownedAttribute xmi:id="_gQjGoKDcEe-SLuTeLQW-Dg" name="name" visibility="public" type="_bJklwKDcEe-SLuTeLQW-Dg">
+      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_gQjGoaDcEe-SLuTeLQW-Dg" value="1"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_gQjGoqDcEe-SLuTeLQW-Dg" value="1"/>
     </ownedAttribute>
+    <ownedOperation xmi:id="_kDlTYKDcEe-SLuTeLQW-Dg" name="get name" visibility="public">
+      <ownedParameter xmi:id="_6w5G4KDeEe-YOsyswcYJNg" name="Parameter" type="_bJklwKDcEe-SLuTeLQW-Dg"/>
+      <ownedParameter xmi:id="_O3iFAKDfEe-YOsyswcYJNg" name="Parameter"/>
+    </ownedOperation>
   </packagedElement>
-  <packagedElement xsi:type="uml:Class" xmi:id="_B1ty8Ja3Ee-H2qHKl9lOow" name="tiger" visibility="public">
-    <ownedAttribute xmi:id="_tJjxUJbUEe-4XdGT1IJFqQ" name="size" visibility="private" type="_Jud9gAiREe-PucyD8uwGDw">
-      <lowerValue xsi:type="uml:LiteralInteger" xmi:id="_tJjxUZbUEe-4XdGT1IJFqQ" value="1"/>
-      <upperValue xsi:type="uml:LiteralUnlimitedNatural" xmi:id="_tJkYYJbUEe-4XdGT1IJFqQ" value="1"/>
-    </ownedAttribute>
-    <ownedOperation xmi:id="_IeBS8ZbTEe-4XdGT1IJFqQ" name="Operation"/>
-  </packagedElement>
+  <packagedElement xsi:type="uml:DataType" xmi:id="_bJklwKDcEe-SLuTeLQW-Dg" name="String"/>
 </uml:Model>

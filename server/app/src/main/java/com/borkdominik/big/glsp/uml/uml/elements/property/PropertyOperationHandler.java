@@ -45,14 +45,20 @@ public class PropertyOperationHandler extends BGEMFNodeOperationHandler<Property
          .supplier((x) -> {
             if (x instanceof AttributeOwner y) {
                String name = null;
-               String type_id = null;
+               Type type = null;
+
                VisibilityKind visibility = null;
                if (operation.getArgs() != null) {
                   name = operation.getArgs().getOrDefault("name", null);
-                  type_id = operation.getArgs().getOrDefault("type_id", null);
+
+                  String type_id = operation.getArgs().getOrDefault("type_id", null);
+                  if (type_id != null) {
+                     type = modelState.getElementIndex().getOrThrow(type_id, Type.class);
+                  }
+
                   visibility = VisibilityKind.get(operation.getArgs().getOrDefault("visibility", null));
                }
-               var type = modelState.getElementIndex().getOrThrow(type_id, Type.class);
+
                var element = y.createOwnedAttribute(name, type);
                element.setLower(1);
                element.setUpper(1);

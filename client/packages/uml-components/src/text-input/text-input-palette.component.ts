@@ -199,15 +199,7 @@ export class TextInputPalette extends BigElement {
             }
             case Intents.CHANGE_NAME_INTENT: {
                 if (elementId !== undefined) {
-                    this.dispatchEvent(
-                        new CustomEvent<Action>('dispatch-action', {
-                            detail: UpdateElementPropertyAction.create({
-                                elementId: elementId,
-                                propertyId: "name",
-                                value: "New Page"
-                            })
-                        })
-                    );
+                    this.changeName(elementId);
                 } else {
                     console.error("Nothing selected");
                 }
@@ -246,6 +238,7 @@ export class TextInputPalette extends BigElement {
                 break;
             }
             case Intents.MOVE:
+                this.moveElement();
                 break;
             default: {
                 console.error("Buhu ;(");
@@ -341,6 +334,7 @@ export class TextInputPalette extends BigElement {
         const json = await this.addValue();
         console.error(json);
 
+        // todo handle CLASS__Parameter for methods, either by checking here or by introducing own intent
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: CreateNodeOperation.create(`CLASS__Property`, 
@@ -389,11 +383,14 @@ export class TextInputPalette extends BigElement {
             console.error(response.text);
         }
         const json = await response.json();
+
+        const relation_type = json.relation_type === "Strong aggregation" ? "Association" : json.relation_type;
+
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: CreateEdgeOperation.create( 
                 {
-                    elementTypeId: "CLASS__" + json.relation_type,
+                    elementTypeId: "CLASS__" + relation_type,
                     sourceElementId: json.class_from_id,
                     targetElementId: json.class_to_id,
                     args: {}
@@ -410,6 +407,20 @@ export class TextInputPalette extends BigElement {
             })
         );
     }
+
+    protected async changeName(focusedElement: string) {
+        const json = await this.updateValue();
+        this.dispatchEvent(
+            new CustomEvent<Action>('dispatch-action', {
+                detail: UpdateElementPropertyAction.create({
+                    elementId: focusedElement,
+                    propertyId: "name",
+                    value: json.new_value
+                })
+            })
+        );
+    }
+    
 
     protected async changeVisibility(focusedElement: string) {
         const json = await this.updateValue();
@@ -465,6 +476,24 @@ export class TextInputPalette extends BigElement {
                 detail: SelectAction.create({ selectedElementsIDs: [json.element_id], deselectedElementsIDs: true })
             })
         );
+    }
+
+    protected async moveElement() {
+        const response = await fetch(this.BASE_URL + `/move/?user_query=${this.inputText}`, {
+            headers: {
+                'accept': 'application/json',
+                'content-type': 'application/json;charset=UTF-8'
+            },
+            method: "POST",
+            body: JSON.stringify({
+                uml_model: this.umlModel?.content,
+                unotation_model: this.unotationModel?.content
+            })
+        });
+        if (!response.ok) {
+            console.error(response.text);
+        }
+        // todo dispatch move
     }
 
     protected textFieldWithButtonTemplate(): TemplateResult<1> {
