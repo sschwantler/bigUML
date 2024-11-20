@@ -14,7 +14,7 @@ import {
     RefreshPropertyPaletteAction,
     UpdateElementPropertyAction
 } from '@borkdominik-biguml/uml-protocol';
-import { Action, CreateEdgeOperation, CreateNodeOperation, DeleteElementOperation, SelectAction } from '@eclipse-glsp/protocol';
+import { Action, ChangeBoundsOperation, CreateEdgeOperation, CreateNodeOperation, DeleteElementOperation, Dimension, ElementAndBounds, SelectAction } from '@eclipse-glsp/protocol';
 import { PropertyValues, TemplateResult, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { HOST_EXTENSION } from 'vscode-messenger-common';
@@ -230,7 +230,7 @@ export class TextInputPalette extends BigElement {
                 } else {
                     console.error("Nothing selected");
                 }
-                
+
                 break;
             }
             case Intents.FOCUS_INTENT: {
@@ -284,7 +284,7 @@ export class TextInputPalette extends BigElement {
         const json = await response.json();
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
-                detail: CreateNodeOperation.create(json.is_abstract ? `CLASS__AbstractClass` : `CLASS__Class`, 
+                detail: CreateNodeOperation.create(json.is_abstract ? `CLASS__AbstractClass` : `CLASS__Class`,
                 {
                     containerId: root_json.id,
                     location: {
@@ -297,7 +297,7 @@ export class TextInputPalette extends BigElement {
                 })
             })
         );
-        
+
         // todo set focus on created class
     }
 
@@ -331,7 +331,7 @@ export class TextInputPalette extends BigElement {
             console.error(response.text);
         }
         return await response.json();
-    } 
+    }
 
     protected async addAttribute(focusedElement: string) {
         const json = await this.addValue();
@@ -340,7 +340,7 @@ export class TextInputPalette extends BigElement {
         // todo handle CLASS__Parameter for methods, either by checking here or by introducing own intent
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
-                detail: CreateNodeOperation.create(`CLASS__Property`, 
+                detail: CreateNodeOperation.create(`CLASS__Property`,
                 {
                     containerId: focusedElement,
                     args: {
@@ -358,7 +358,7 @@ export class TextInputPalette extends BigElement {
         // no return type
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
-                detail: CreateNodeOperation.create(`CLASS__Operation`, 
+                detail: CreateNodeOperation.create(`CLASS__Operation`,
                 {
                     containerId: focusedElement,
                     args: {
@@ -391,7 +391,7 @@ export class TextInputPalette extends BigElement {
 
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
-                detail: CreateEdgeOperation.create( 
+                detail: CreateEdgeOperation.create(
                 {
                     elementTypeId: "CLASS__" + relation_type,
                     sourceElementId: json.class_from_id,
@@ -423,7 +423,7 @@ export class TextInputPalette extends BigElement {
             })
         );
     }
-    
+
 
     protected async changeVisibility(focusedElement: string) {
         const json = await this.updateValue();
@@ -442,7 +442,7 @@ export class TextInputPalette extends BigElement {
     protected async changeDatatype(focusedElement: string) {
         const json = await this.updateValue();
         const found_json = await this.findIdByName(json.new_value, "class");  // todo "class" might be any container
-        
+
         this.dispatchEvent(
             new CustomEvent<Action>('dispatch-action', {
                 detail: UpdateElementPropertyAction.create({
@@ -496,8 +496,21 @@ export class TextInputPalette extends BigElement {
         if (!response.ok) {
             console.error(response.text);
         }
-        // todo dispatch move
-        // I got the x and y coordinates as well as the focusedElement id available
+        const json = await response.json();
+        const elementAndBounds: ElementAndBounds = {
+            elementId: focusedElement,
+            newSize: Dimension.EMPTY,
+            newPosition: {
+                x: json.x_coord,
+                y: json.y_coord
+            }
+        };
+
+        this.dispatchEvent(
+            new CustomEvent('dispatch-action', {
+                detail: ChangeBoundsOperation.create([elementAndBounds])
+            })
+        );
     }
 
     protected textFieldWithButtonTemplate(): TemplateResult<1> {
