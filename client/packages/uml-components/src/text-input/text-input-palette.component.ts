@@ -9,19 +9,19 @@
 
 import {
     ActionMessageNotification,
-    ElementProperties,
-    UpdateElementPropertyAction,
     BGModelResource,
-    RefreshPropertyPaletteAction
+    ElementProperties,
+    RefreshPropertyPaletteAction,
+    UpdateElementPropertyAction
 } from '@borkdominik-biguml/uml-protocol';
-import { Action, CreateNodeOperation, CreateEdgeOperation, DeleteElementOperation, SelectAction } from '@eclipse-glsp/protocol';
+import { Action, CreateEdgeOperation, CreateNodeOperation, DeleteElementOperation, SelectAction } from '@eclipse-glsp/protocol';
 import { PropertyValues, TemplateResult, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
+import { HOST_EXTENSION } from 'vscode-messenger-common';
 import { BigElement } from '../base/component';
 import '../global';
-import { TextInputPaletteStyle } from './text-input-palette.style';
 import { messenger } from '../vscode/messenger';
-import { HOST_EXTENSION } from 'vscode-messenger-common';
+import { TextInputPaletteStyle } from './text-input-palette.style';
 
 export function defineTextInputPalette(): void {
     customElements.define('big-text-input-palette', TextInputPalette);
@@ -238,7 +238,11 @@ export class TextInputPalette extends BigElement {
                 break;
             }
             case Intents.MOVE:
-                this.moveElement();
+                if (elementId !== undefined) {
+                    this.moveElement(elementId);
+                } else {
+                    console.error("Nothing selected");
+                }
                 break;
             default: {
                 console.error("Buhu ;(");
@@ -288,8 +292,7 @@ export class TextInputPalette extends BigElement {
                         y: 0
                     },
                     args: {
-                        name: json.class_name,
-                        isAbstract: json.is_abstract
+                        name: json.class_name
                     }
                 })
             })
@@ -478,7 +481,7 @@ export class TextInputPalette extends BigElement {
         );
     }
 
-    protected async moveElement() {
+    protected async moveElement(focusedElement: string) {
         const response = await fetch(this.BASE_URL + `/move/?user_query=${this.inputText}`, {
             headers: {
                 'accept': 'application/json',
@@ -494,6 +497,7 @@ export class TextInputPalette extends BigElement {
             console.error(response.text);
         }
         // todo dispatch move
+        // I got the x and y coordinates as well as the focusedElement id available
     }
 
     protected textFieldWithButtonTemplate(): TemplateResult<1> {
