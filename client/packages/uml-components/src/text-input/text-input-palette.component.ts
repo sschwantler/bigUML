@@ -153,9 +153,14 @@ export class TextInputPalette extends BigElement {
 
         await this.handleIntent(json.intent);
 
+        await this.sleep(1000); // this is the most hacky solution ever to delay the update until the server did the change
+
         console.log("Sending Notification from component");
         this.sendNotification({ kind: 'requestModelResources' });
-        this.sendNotification({ kind: 'textInputReady' });
+    }
+
+    protected async sleep(ms: number): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     protected async handleIntent(intent: string) {

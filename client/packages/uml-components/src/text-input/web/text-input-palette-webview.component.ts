@@ -55,7 +55,6 @@ export class TextInputPaletteWebview extends BigElement {
             if (SetPropertyPaletteAction.is(action)) {
                 this.clientId = clientId;
                 this.elementProperties = action.palette;
-                
             } else if (ModelResourcesResponseAction.is(action)) {
                 this.umlModel = action.resources.uml as BGModelResource;
                 this.unotationModel = action.resources.unotation as BGModelResource;
@@ -74,7 +73,6 @@ export class TextInputPaletteWebview extends BigElement {
         messenger.start();
 
         console.log("Sending Notification from webview component");
-        this.sendNotification({ kind: 'requestModelResources' });
         this.sendNotification({ kind: 'textInputReady' });
 
     }

@@ -60,6 +60,7 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
                 // =============== FORWARD DATA TO WEBVIEW ===============
                 console.log('ModelResourcesResponseAction', message.action);
                 this.webviewViewConnection.send(message.action);
+                this.extensionHostConnection.send(RequestMinimapExportSvgAction.create());
             }
         });
 
@@ -67,8 +68,8 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
         this.webviewViewConnection.onActionMessage(message => {
             console.log("webviewViewConnection.onActionMessage", message.action);
             if (message.action.kind === 'textInputReady') {
-                this.extensionHostConnection.send(RequestMinimapExportSvgAction.create());
-                // =============== REQUEST MODEL RESOURCES ===============
+                                // =============== REQUEST MODEL RESOURCES ===============
+                this.extensionHostConnection.send(RequestMinimapExportSvgAction.create()); // 
                 this.extensionHostConnection.send(RequestModelResourcesAction.create());
                 this.extensionHostConnection.forwardCachedActionsToWebview();
             } else {
