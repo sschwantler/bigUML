@@ -11,7 +11,6 @@ import {
     ActionMessageNotification,
     BGModelResource,
     ElementProperties,
-    RefreshPropertyPaletteAction,
     UpdateElementPropertyAction
 } from '@borkdominik-biguml/uml-protocol';
 import { Action, ChangeBoundsOperation, CreateEdgeOperation, CreateNodeOperation, DeleteElementOperation, Dimension, ElementAndBounds, SelectAction } from '@eclipse-glsp/protocol';
@@ -120,6 +119,10 @@ export class TextInputPalette extends BigElement {
 
         try {
             const response = await fetch(this.BASE_URL + '/transcribe/', {
+                headers: {
+                    'accept': 'multipart/form-data',
+                    'content-type': 'multipart/form-data'
+                },
                 method: 'POST',
                 body: formData,
             });
@@ -138,13 +141,6 @@ export class TextInputPalette extends BigElement {
     }
 
     protected async onStartIntent(): Promise<void> {
-        console.log("onStartIntent");
-        console.log(this.properties);
-        console.log(this.navigationIds);
-        console.log(this.umlModel);
-        console.log(this.unotationModel);
-        console.log(this.clientId)
-
         const response = await fetch(this.BASE_URL + `/intent/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
@@ -154,9 +150,12 @@ export class TextInputPalette extends BigElement {
             console.error(response.text)
         }
         const json = await response.json();
-        this.handleIntent(json.intent);
-        this.sendNotification(RefreshPropertyPaletteAction.create());
+
+        await this.handleIntent(json.intent);
+
+        console.log("Sending Notification from component");
         this.sendNotification({ kind: 'requestModelResources' });
+        this.sendNotification({ kind: 'textInputReady' });
     }
 
     protected async handleIntent(intent: string) {
@@ -172,7 +171,7 @@ export class TextInputPalette extends BigElement {
             FOCUS_INTENT = "Focus",
             MOVE = "Move"
         }
-
+        console.log("### Handle Intent ###");
         console.log(intent);
         const elementId = this.properties?.elementId;
 
@@ -297,8 +296,6 @@ export class TextInputPalette extends BigElement {
                 })
             })
         );
-
-        // todo set focus on created class
     }
 
     // abstract parent for addAttribute and addMethod

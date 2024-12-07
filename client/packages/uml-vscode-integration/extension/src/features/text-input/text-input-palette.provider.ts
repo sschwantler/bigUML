@@ -13,7 +13,7 @@ import { VSCodeSettings } from '../../language';
 import { getBundleUri, getUri } from '../../utilities/webview';
 import { ProviderWebviewContext, UMLWebviewProvider } from '../../vscode/webview/webview-provider';
 import { InitializeCanvasBoundsAction, SetViewportAction } from '@eclipse-glsp/client';
-import { MinimapExportSvgAction, ModelResourcesResponseAction, RefreshPropertyPaletteAction, RequestMinimapExportSvgAction, RequestModelResourcesAction, SetPropertyPaletteAction } from '@borkdominik-biguml/uml-protocol';
+import { MinimapExportSvgAction, ModelResourcesResponseAction, RequestMinimapExportSvgAction, RequestModelResourcesAction, SetPropertyPaletteAction } from '@borkdominik-biguml/uml-protocol';
 
 
 @injectable()
@@ -60,23 +60,12 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
                 // =============== FORWARD DATA TO WEBVIEW ===============
                 console.log('ModelResourcesResponseAction', message.action);
                 this.webviewViewConnection.send(message.action);
-                this.webviewViewConnection.send(SetPropertyPaletteAction.create());
-            }
-        });
-        this.extensionHostConnection.onNoActiveClient(() => {
-            this.webviewViewConnection.send(MinimapExportSvgAction.create());
-        });
-        this.extensionHostConnection.onDidActiveClientChange(client => {
-            this.extensionHostConnection.sendTo(client.clientId, RefreshPropertyPaletteAction.create());
-        });
-        this.extensionHostConnection.onNoActiveClient(() => {
-            if (this.connector.documents.length === 0) {
-                this.webviewViewConnection.send(SetPropertyPaletteAction.create());
             }
         });
 
         // ==== Webview View Connection ====
         this.webviewViewConnection.onActionMessage(message => {
+            console.log("webviewViewConnection.onActionMessage", message.action);
             if (message.action.kind === 'textInputReady') {
                 this.extensionHostConnection.send(RequestMinimapExportSvgAction.create());
                 // =============== REQUEST MODEL RESOURCES ===============
