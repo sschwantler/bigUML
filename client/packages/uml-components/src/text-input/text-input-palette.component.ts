@@ -165,7 +165,7 @@ export class TextInputPalette extends BigElement {
 
     protected async handleIntent(intent: string) {
         enum Intents {
-            CREATE_CLASS = "CreateClass",
+            CREATE_CONTAINER = "CreateContainer",
             ADD_ATTRIBUTE = "AddAttribute",
             ADD_METHOD = "AddMethod",
             CHANGE_NAME_INTENT = "ChangeName",
@@ -181,8 +181,8 @@ export class TextInputPalette extends BigElement {
         const elementId = this.properties?.elementId;
 
         switch(intent) {
-            case Intents.CREATE_CLASS: {
-                this.createClass();
+            case Intents.CREATE_CONTAINER: {
+                this.createContainer();
                 break;
             }
             case Intents.ADD_ATTRIBUTE: {
@@ -273,10 +273,11 @@ export class TextInputPalette extends BigElement {
         return await response.json();
     }
 
-    protected async createClass() {
+    protected async createContainer() {
+        // todo only use root if nothing is selected
         const root_json = await this.findIdByName("root", "root");
 
-        const response = await fetch(this.BASE_URL + `/create-class/?user_query=${this.inputText}`, {
+        const response = await fetch(this.BASE_URL + `/create-container/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
             },
@@ -286,6 +287,7 @@ export class TextInputPalette extends BigElement {
             console.error(response.text);
         }
         const json = await response.json();
+        // todo distinguish for different container types
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
                 detail: CreateNodeOperation.create(json.is_abstract ? `CLASS__AbstractClass` : `CLASS__Class`,
@@ -296,7 +298,7 @@ export class TextInputPalette extends BigElement {
                         y: 0
                     },
                     args: {
-                        name: json.class_name
+                        name: json.container_name
                     }
                 })
             })
