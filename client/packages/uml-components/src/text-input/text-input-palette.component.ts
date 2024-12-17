@@ -72,12 +72,19 @@ export class TextInputPalette extends BigElement {
         return this.textFieldWithButtonTemplate();
     }
 
+    protected async onRecordActionMessageStart(): Promise<void> {
+        this.sendNotification({ kind: 'startRecording' });
+    }
+
     protected async onRecordAudio(): Promise<void> {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             console.error('Audio recording not supported in this environment');
             return;
         }
 
+        console.log(navigator);
+        console.log('Clipboard supported:', !!navigator.clipboard);
+        console.log('MediaDevices supported:', !!navigator.mediaDevices);
         try {
             // fixme: Permissions policy violation: microphone is not allowed in this document.
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -277,7 +284,7 @@ export class TextInputPalette extends BigElement {
         // todo only use root if nothing is selected
         const root_json = await this.findIdByName("root", "root");
 
-        const response = await fetch(this.BASE_URL + `/create-container/?user_query=${this.inputText}`, {
+        const response = await fetch(this.BASE_URL + `/create-class/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
             },
@@ -298,7 +305,7 @@ export class TextInputPalette extends BigElement {
                         y: 0
                     },
                     args: {
-                        name: json.container_name
+                        name: json.class_name
                     }
                 })
             })
@@ -518,12 +525,11 @@ export class TextInputPalette extends BigElement {
     }
 
     protected textFieldWithButtonTemplate(): TemplateResult<1> {
-        // TODO comment in record button
         return html`
             <div class="grid-value grid-flex">
                 <vscode-text-field .value="${this.inputText}" @input="${(event: any) => (this.inputText = event.target?.value)}"></vscode-text-field>
                 <vscode-button appearance="primary" @click="${this.onStartIntent}"> Send </vscode-button>
-                <vscode-button appearance="primary" @click="${this.onRecordAudio}"> Record </vscode-button>
+                <vscode-button appearance="primary" @click="${this.onRecordActionMessageStart}"> Record Start </vscode-button>
             </div>
         `
     }

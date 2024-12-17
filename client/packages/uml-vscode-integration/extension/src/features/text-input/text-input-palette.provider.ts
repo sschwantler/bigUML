@@ -14,10 +14,16 @@ import { getBundleUri, getUri } from '../../utilities/webview';
 import { ProviderWebviewContext, UMLWebviewProvider } from '../../vscode/webview/webview-provider';
 import { InitializeCanvasBoundsAction, SetViewportAction } from '@eclipse-glsp/client';
 import { MinimapExportSvgAction, ModelResourcesResponseAction, RequestMinimapExportSvgAction, RequestModelResourcesAction, SetPropertyPaletteAction } from '@borkdominik-biguml/uml-protocol';
-
+import { exec, ChildProcess } from 'child_process';
+import * as path from 'path';
+import * as vscode from 'vscode';
 
 @injectable()
 export class TextInputPaletteProvider extends UMLWebviewProvider {
+    private recordingProcess: ChildProcess | null = null;
+    private tempDir: string = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || '/tmp';
+    private fileName: string = 'recording';
+
     get id(): string {
         return VSCodeSettings.textInputPalette.viewId;
     }
@@ -68,14 +74,46 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
         this.webviewViewConnection.onActionMessage(message => {
             console.log("webviewViewConnection.onActionMessage", message.action);
             if (message.action.kind === 'textInputReady') {
-                                // =============== REQUEST MODEL RESOURCES ===============
-                this.extensionHostConnection.send(RequestMinimapExportSvgAction.create()); // 
+                // =============== REQUEST MODEL RESOURCES ===============
+                this.extensionHostConnection.send(RequestMinimapExportSvgAction.create()); //
                 this.extensionHostConnection.send(RequestModelResourcesAction.create());
                 this.extensionHostConnection.forwardCachedActionsToWebview();
+            } else if (message.action.kind === 'startRecording') {
+                this.startRecording();
             } else {
                 this.extensionHostConnection.send(message.action);
             }
         });
     }
 
+    // Start Recording Method
+    private startRecording(): void {
+        try {
+            const outputPath = path.join(this.tempDir, `${this.fileName}.wav`);
+            this.recordingProcess = exec(
+                `sox -d -b 16 -e signed -c 1 -r 16k "${outputPath}" trim 0 5`, // silence 1 0.1 3% 1 3.0 3%
+                (error, stdout, stderr) => {
+                    if (error) {
+                        vscode.window.showErrorMessage(`Recording error: ${error.message}`);
+                        console.error(`Error: ${error.message}`);
+                        return;
+                    }
+                    if (stderr) {
+                        vscode.window.showWarningMessage(`SoX Warning: ${stderr}`);
+                    }
+                    vscode.window.showInformationMessage(`Recording saved: ${outputPath}`);
+
+                    // Send SIGINT to ensure process termination
+                    if (this.recordingProcess && !this.recordingProcess.killed) {
+                        this.recordingProcess.kill('SIGINT');
+                        console.log('SIGINT sent to terminate the recording process.');
+                    }
+                }
+            );
+            vscode.window.showInformationMessage('Recording started...');
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to start recording: ${error}`);
+            console.error(`Failed to start recording: ${error}`);
+        }
+    }
 }
