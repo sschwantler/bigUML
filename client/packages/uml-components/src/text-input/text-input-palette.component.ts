@@ -40,15 +40,17 @@ export class TextInputPalette extends BigElement {
     @property({ type: Object })
     protected unotationModel?: BGModelResource;
 
+    @property({ type: Object })
+    protected audioFilePath?: string;
+    @property({ type: Object })
+    protected audioBlob?: Blob;
+
     @state() inputText = '...';
 
     @state()
     protected navigationIds: { [key: string]: { from: string; to: string }[] } = {};
 
     private BASE_URL: string = "http://localhost:8000";
-
-    private mediaRecorder: MediaRecorder | null = null;
-    private audioChunks: BlobPart[] = [];
 
     protected override render(): TemplateResult<1> {
         return html`<div>${this.headerTemplate()} ${this.bodyTemplate()}</div>`;
@@ -76,59 +78,19 @@ export class TextInputPalette extends BigElement {
         this.sendNotification({ kind: 'startRecording' });
     }
 
-    protected async onRecordAudio(): Promise<void> {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.error('Audio recording not supported in this environment');
+    protected async transcribeAudio(): Promise<void> {
+        if (this.audioBlob === undefined) {
+            console.error("Cannot transcribe, audio blob is undefined");
             return;
         }
-
-        console.log(navigator);
-        console.log('Clipboard supported:', !!navigator.clipboard);
-        console.log('MediaDevices supported:', !!navigator.mediaDevices);
-        try {
-            // fixme: Permissions policy violation: microphone is not allowed in this document.
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            this.mediaRecorder = new MediaRecorder(stream);
-
-            this.mediaRecorder.ondataavailable = (event) => {
-                this.audioChunks.push(event.data);
-            };
-
-            this.mediaRecorder.start();
-            console.info("Recording started...");
-
-            // Automatically stop recording after 5 seconds
-            setTimeout(() => {
-                this.stopRecording();
-            }, 5000);
-
-        } catch (error) {
-            console.error('Error accessing microphone:', error);
-        }
-    }
-
-    protected async stopRecording(): Promise<void> {
-        if (this.mediaRecorder) {
-            this.mediaRecorder.stop();
-            this.mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
-                this.audioChunks = [];  // Clear the chunks array for the next recording
-
-                console.log("Recording stopped.");
-                await this.transcribeAudio(audioBlob);
-            };
-        }
-    }
-
-    protected async transcribeAudio(audioBlob: Blob): Promise<void> {
         const formData = new FormData();
-        formData.append("file", new File([audioBlob], "recording.wav"));
+        formData.append("file", new File([this.audioBlob], "recording.wav", { type: "audio/wav" }));
 
         try {
             const response = await fetch(this.BASE_URL + '/transcribe/', {
                 headers: {
-                    'accept': 'multipart/form-data',
-                    'content-type': 'multipart/form-data'
+                    'accept': 'application/json',
+                    // 'content-type' is omitted to allow fetch to set it automatically
                 },
                 method: 'POST',
                 body: formData,
@@ -146,6 +108,7 @@ export class TextInputPalette extends BigElement {
             console.error("Error transcribing audio:", error);
         }
     }
+
 
     protected async onStartIntent(): Promise<void> {
         const response = await fetch(this.BASE_URL + `/intent/?user_query=${this.inputText}`, {
@@ -528,8 +491,11 @@ export class TextInputPalette extends BigElement {
         return html`
             <div class="grid-value grid-flex">
                 <vscode-text-field .value="${this.inputText}" @input="${(event: any) => (this.inputText = event.target?.value)}"></vscode-text-field>
-                <vscode-button appearance="primary" @click="${this.onStartIntent}"> Send </vscode-button>
-                <vscode-button appearance="primary" @click="${this.onRecordActionMessageStart}"> Record Start </vscode-button>
+                <div style="display: flex; gap: 10px;">
+                    <vscode-button appearance="primary" @click="${this.onRecordActionMessageStart}"> Start Recording </vscode-button>
+                    <vscode-button appearance="primary" @click="${this.transcribeAudio}"> Transcribe </vscode-button>
+                    <vscode-button appearance="primary" @click="${this.onStartIntent}"> Send Command </vscode-button>
+                </div>
             </div>
         `
     }

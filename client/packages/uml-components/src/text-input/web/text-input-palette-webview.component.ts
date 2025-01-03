@@ -12,7 +12,8 @@ import {
     ElementProperties,
     ModelResourcesResponseAction,
     SetPropertyPaletteAction,
-    BGModelResource
+    BGModelResource,
+    AudioRecordingCompleteAction
 } from '@borkdominik-biguml/uml-protocol';
 import { Action, ActionMessage } from '@eclipse-glsp/protocol';
 import { TemplateResult, html } from 'lit';
@@ -38,6 +39,10 @@ export class TextInputPaletteWebview extends BigElement {
     protected umlModel?: BGModelResource;
     @state()
     protected unotationModel?: BGModelResource;
+    @state()
+    protected audioFilePath?: string;
+    @state()
+    protected audioBlob?: Blob;
 
     override connectedCallback(): void {
         super.connectedCallback();
@@ -52,7 +57,12 @@ export class TextInputPaletteWebview extends BigElement {
 
             let log = true;
 
-            if (SetPropertyPaletteAction.is(action)) {
+            if (AudioRecordingCompleteAction.is(action)) {
+                const { filePath, fileData } = action;
+                this.audioFilePath = filePath;
+                const fileBlob = new Blob([new Uint8Array(fileData)], { type: 'audio/wav' });
+                this.audioBlob = fileBlob;
+            } else if (SetPropertyPaletteAction.is(action)) {
                 this.clientId = clientId;
                 this.elementProperties = action.palette;
             } else if (ModelResourcesResponseAction.is(action)) {
@@ -84,6 +94,8 @@ export class TextInputPaletteWebview extends BigElement {
             .properties="${this.elementProperties}"
             .umlModel="${this.umlModel}"
             .unotationModel="${this.unotationModel}"
+            .audioFilePath="${this.audioFilePath}"
+            .audioBlob="${this.audioBlob}"
             @dispatch-action="${this.onDispatchAction}"
         ></big-text-input-palette>`;
     }

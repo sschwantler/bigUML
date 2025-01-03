@@ -13,10 +13,11 @@ import { VSCodeSettings } from '../../language';
 import { getBundleUri, getUri } from '../../utilities/webview';
 import { ProviderWebviewContext, UMLWebviewProvider } from '../../vscode/webview/webview-provider';
 import { InitializeCanvasBoundsAction, SetViewportAction } from '@eclipse-glsp/client';
-import { MinimapExportSvgAction, ModelResourcesResponseAction, RequestMinimapExportSvgAction, RequestModelResourcesAction, SetPropertyPaletteAction } from '@borkdominik-biguml/uml-protocol';
+import { AudioRecordingCompleteAction, MinimapExportSvgAction, ModelResourcesResponseAction, RequestMinimapExportSvgAction, RequestModelResourcesAction, SetPropertyPaletteAction } from '@borkdominik-biguml/uml-protocol';
 import { exec, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 
 @injectable()
 export class TextInputPaletteProvider extends UMLWebviewProvider {
@@ -102,7 +103,10 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
                         vscode.window.showWarningMessage(`SoX Warning: ${stderr}`);
                     }
                     vscode.window.showInformationMessage(`Recording saved: ${outputPath}`);
-
+                    const fileBuffer = fs.readFileSync(outputPath);
+                    const uint8Array = new Uint8Array(fileBuffer); // Convert Buffer to Uint8Array
+                    const action = AudioRecordingCompleteAction.create(outputPath, uint8Array);
+                    this.webviewViewConnection.send(action);
                     // Send SIGINT to ensure process termination
                     if (this.recordingProcess && !this.recordingProcess.killed) {
                         this.recordingProcess.kill('SIGINT');
