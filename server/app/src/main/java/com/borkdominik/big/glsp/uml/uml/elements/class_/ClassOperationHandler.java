@@ -41,10 +41,15 @@ public class ClassOperationHandler extends BGEMFNodeOperationHandler<Class, Pack
          .<Class> createPackageableElementArgumentBuilder()
          .supplier((x) -> {
 
-            var isAbstract = UMLTypes.ABSTRACT_CLASS.isSame(representation, operation.getElementTypeId());
-            var name = isAbstract ? "Abstract Class" : "Class";
-            if (operation.getArgs() != null && operation.getArgs().containsKey("name")) {
-               name = operation.getArgs().get("name");
+            var isAbstract = false;
+            var name = "Class";
+            if (operation.getArgs() != null) {
+                if (operation.getArgs().containsKey("name")) {
+                    name = operation.getArgs().get("name");
+                }
+                if (operation.getArgs().containsKey("is_abstract")) {
+                    isAbstract = Boolean.parseBoolean(operation.getArgs().get("is_abstract"));
+                }
             }
 
             return x.createOwnedClass(name, isAbstract);

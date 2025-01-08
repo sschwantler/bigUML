@@ -22,6 +22,16 @@ import '../global';
 import { messenger } from '../vscode/messenger';
 import { TextInputPaletteStyle } from './text-input-palette.style';
 
+const umlTypesMap = new Map<string, string>([
+    ["class", "CLASS__Class"],
+    ["interface", "CLASS__Interface"],
+    ["data type", "CLASS__DataType"],
+    ["enumeration", "CLASS__Enumeration"],
+    ["instance", "CLASS__Instance"],
+    ["package", "CLASS__Package"],
+    ["primitive type", "CLASS__PrimitiveType"]
+]);
+
 export function defineTextInputPalette(): void {
     customElements.define('big-text-input-palette', TextInputPalette);
 }
@@ -247,7 +257,7 @@ export class TextInputPalette extends BigElement {
         // todo only use root if nothing is selected
         const root_json = await this.findIdByName("root", "root");
 
-        const response = await fetch(this.BASE_URL + `/create-class/?user_query=${this.inputText}`, {
+        const response = await fetch(this.BASE_URL + `/create-container/?user_query=${this.inputText}`, {
             headers: {
                 accept: 'application/json'
             },
@@ -257,10 +267,12 @@ export class TextInputPalette extends BigElement {
             console.error(response.text);
         }
         const json = await response.json();
-        // todo distinguish for different container types
+
+        const containerType = umlTypesMap.get(json.container_type) ?? `CLASS__Class`;
+
         this.dispatchEvent(
             new CustomEvent('dispatch-action', {
-                detail: CreateNodeOperation.create(json.is_abstract ? `CLASS__AbstractClass` : `CLASS__Class`,
+                detail: CreateNodeOperation.create(containerType,
                 {
                     containerId: root_json.id,
                     location: {
@@ -268,7 +280,8 @@ export class TextInputPalette extends BigElement {
                         y: 0
                     },
                     args: {
-                        name: json.class_name
+                        name: json.container_name,
+                        is_abstract: json.is_abstract
                     }
                 })
             })
