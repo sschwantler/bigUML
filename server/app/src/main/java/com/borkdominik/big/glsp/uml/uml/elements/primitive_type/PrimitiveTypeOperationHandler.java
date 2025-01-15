@@ -40,7 +40,17 @@ public class PrimitiveTypeOperationHandler extends BGEMFNodeOperationHandler<Pri
       final Package parent) {
       var argument = CreatePackagableElementCommand.Argument
          .<PrimitiveType> createPackageableElementArgumentBuilder()
-         .supplier((x) -> UMLFactory.eINSTANCE.createPrimitiveType())
+         .supplier((x) -> {
+            var name = "Primitive Type";
+            if (operation.getArgs() != null) {
+               if (operation.getArgs().containsKey("name")) {
+                  name = operation.getArgs().get("name");
+               }
+            }
+            var primitiveType = UMLFactory.eINSTANCE.createPrimitiveType();
+            primitiveType.setName(name);
+            return primitiveType;
+         })
          .build();
 
       return new CreatePackagableElementCommand<>(commandContext, parent, argument);

@@ -40,7 +40,15 @@ public class DataTypeOperationHandler extends BGEMFNodeOperationHandler<DataType
       var argument = CreatePackagableElementCommand.Argument
          .<DataType> createPackageableElementArgumentBuilder()
          .supplier((p) -> {
-            return UMLFactory.eINSTANCE.createDataType();
+            var name = "Data Type";
+            if (operation.getArgs() != null) {
+               if (operation.getArgs().containsKey("name")) {
+                  name = operation.getArgs().get("name");
+               }
+            }
+            var dataType = UMLFactory.eINSTANCE.createDataType();
+            dataType.setName(name);
+            return dataType;
          })
          .build();
 
