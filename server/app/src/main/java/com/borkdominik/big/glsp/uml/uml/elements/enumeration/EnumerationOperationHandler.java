@@ -41,15 +41,20 @@ public class EnumerationOperationHandler extends BGEMFNodeOperationHandler<Enume
       var argument = CreatePackagableElementCommand.Argument
          .<Enumeration> createPackageableElementArgumentBuilder()
          .supplier((p) -> {
-            var name = "Enumeration";
-            if (operation.getArgs() != null) {
-               if (operation.getArgs().containsKey("name")) {
-                  name = operation.getArgs().get("name");
-               }
-            }
-            var enumeration = UMLFactory.eINSTANCE.createEnumeration();
-            enumeration.setName(name);
-            return enumeration;
+             var name = "Enumeration";
+             var isAbstract = false;
+             if (operation.getArgs() != null) {
+                 if (operation.getArgs().containsKey("name")) {
+                     name = operation.getArgs().get("name");
+                 }
+                 if (operation.getArgs().containsKey("is_abstract")) {
+                     isAbstract = Boolean.parseBoolean(operation.getArgs().get("is_abstract"));
+                 }
+             }
+             var enumeration = UMLFactory.eINSTANCE.createEnumeration();
+             enumeration.setName(name);
+             enumeration.setIsAbstract(isAbstract);
+             return enumeration;
          })
          .build();
 
