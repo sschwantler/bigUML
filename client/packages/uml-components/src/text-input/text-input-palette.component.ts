@@ -627,14 +627,17 @@ export class TextInputPalette extends BigElement {
     protected async isNliServerRunning(timeout = 1000): Promise<boolean> {
         const controller = new AbortController();
         const signal = controller.signal;
-    
+        
         const timeoutId = setTimeout(() => controller.abort(), timeout);
     
         try {
-            const response = await fetch("http://localhost:8000/ping", { method: "GET", signal });
+            const response = await fetch(NLI_SERVER_URL + "/ping", { method: "GET", signal });
+    
             clearTimeout(timeoutId);
-            return response.status === 204;
+    
+            return response.status === 204 || response.status === 404;
         } catch (error) {
+            clearTimeout(timeoutId);
             return false;
         }
     }

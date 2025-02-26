@@ -36,13 +36,7 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
     override init(): void {
         super.init();
         this.extensionHostConnection.cacheActions([InitializeCanvasBoundsAction.KIND, SetViewportAction.KIND, SetPropertyPaletteAction.KIND]);
-        fs.mkdir(this.tempDir, {recursive: true},
-            (err) => {
-                if (err) {
-                    return console.error(err);
-                }
-                console.log('Directory created successfully!');
-            });
+        this.ensureDirectoryExists();
     }
 
     protected resolveHTML(providerContext: ProviderWebviewContext): void {
@@ -99,6 +93,7 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
     // Start Recording Method
     private startRecording(): void {
         try {
+            this.ensureDirectoryExists();
             this.fileName = Date.now().toString();
             const outputPath = path.join(this.tempDir, `${this.fileName}.wav`);
             this.recordingProcess = exec(
@@ -145,4 +140,20 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
             }
         });
     }
+
+    protected ensureDirectoryExists(): void {
+        fs.access(this.tempDir, fs.constants.F_OK, (err) => {
+            if (err) {
+                fs.mkdir(this.tempDir, { recursive: true }, (mkdirErr) => {
+                    if (mkdirErr) {
+                        return console.error("Failed to create directory:", mkdirErr);
+                    }
+                    console.log('Directory created successfully!');
+                });
+            } else {
+                console.log("Directory already exists.");
+            }
+        });
+    }
+
 }
