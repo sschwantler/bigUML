@@ -13,7 +13,7 @@ import { VSCodeSettings } from '../../language';
 import { getBundleUri, getUri } from '../../utilities/webview';
 import { ProviderWebviewContext, UMLWebviewProvider } from '../../vscode/webview/webview-provider';
 import { InitializeCanvasBoundsAction, SetViewportAction } from '@eclipse-glsp/client';
-import { AudioRecordingCompleteAction, ExportHistoryAction, ModelResourcesResponseAction, RequestModelResourcesAction, SetPropertyPaletteAction } from '@borkdominik-biguml/uml-protocol';
+import { AudioRecordingCompleteAction, ExportHistoryAction, NliErrorAction, ModelResourcesResponseAction, RequestModelResourcesAction, SetPropertyPaletteAction } from '@borkdominik-biguml/uml-protocol';
 import { exec, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -88,7 +88,8 @@ export class TextInputPaletteProvider extends UMLWebviewProvider {
             } else if (ExportHistoryAction.is(message.action)) {
                 const inputHistory = new Map<string, string>(message.action.inputHistory);
                 this.exportHistory(inputHistory);
-
+            } else if (NliErrorAction.is(message.action)) {
+                vscode.window.showErrorMessage(`${message.action.message}`);
             }else {
                 this.extensionHostConnection.send(message.action);
             }
