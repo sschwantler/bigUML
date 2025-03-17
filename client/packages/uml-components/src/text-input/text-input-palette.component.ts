@@ -23,7 +23,7 @@ import { BigElement } from '../base/component';
 import '../global';
 import { messenger } from '../vscode/messenger';
 import { TextInputPaletteStyle } from './text-input-palette.style';
-import { NLI_SERVER_URL } from './index';
+import { NLI_SERVER_URL, SHOW_NLI_UI } from './index';
 
 const umlTypesMap = new Map<string, string>([
     ["class", "CLASS__Class"],
@@ -69,7 +69,10 @@ export class TextInputPalette extends BigElement {
     protected navigationIds: { [key: string]: { from: string; to: string }[] } = {};
 
     protected override render(): TemplateResult<1> {
-        return html`<div>${this.headerTemplate()} ${this.bodyTemplate()}</div>`;
+        if (SHOW_NLI_UI) {
+            return html`<div>${this.headerTemplate()} ${this.bodyTemplate()}</div>`;
+        }
+        return html`<div></div>`;
     }
 
     protected override updated(changedProperties: PropertyValues<this>): void {
