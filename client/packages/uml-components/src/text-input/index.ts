@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: MIT
  *********************************************************************************/
 
-export * from './reference';
 export * from './text-input-palette.component';
 export * from './text-input-palette.style';
 export * from './web';
